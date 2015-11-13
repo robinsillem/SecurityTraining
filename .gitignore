@@ -1,2 +1,8 @@
 *.suo
 .ntvs_analysis.dat
+Samples/MEAN_stack/node_modules/
+Samples/MEAN_stack/logs/
+Samples/MEAN_stack/assets/
+*.cache
+Samples/MEAN_stack/node_modules
+Samples/MEAN_stack/.vagrant/

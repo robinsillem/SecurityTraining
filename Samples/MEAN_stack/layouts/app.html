@@ -1,0 +1,29 @@
+﻿<meta charset="UTF-8">
+
+<html>
+<head>
+    <title>MEAN stack</title>
+    <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/app.css">
+</head>
+<body ng-app="app" ng-controller="ApplicationCtrl">
+    <nav class="navbar navbar-default">
+        <div class="container">
+            <ul class="nav navbar-nav">
+                <li><a href="/#/">Posts</a></li>
+                <li><a href="/#/register">Register</a></li>
+                <li><a href="/#/login">Login</a></li>
+            </ul>
+            <span ng-if="currentUser" class="navbar-text navbar-right">
+                Signed in as {{currentUser.username}}
+                <button ng-click="logout()" class="btn">Logout</button>
+            </span>
+
+        </div>
+    </nav>
+    <div ng-view></div>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular-route.js"></script>
+    <script src="/app.js"></script>
+</body>
+</html>

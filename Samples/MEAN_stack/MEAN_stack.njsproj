@@ -30,11 +30,44 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="config.js" />
+    <Compile Include="controllers\api\posts.js" />
+    <Compile Include="controllers\api\sessions.js" />
+    <Compile Include="controllers\api\users.js" />
+    <Compile Include="controllers\static.js" />
+    <Compile Include="db.js" />
+    <Compile Include="gulpfile.js" />
+    <Compile Include="models\post.js" />
+    <Compile Include="models\user.js" />
+    <Compile Include="ng\application.ctrl.js" />
+    <Compile Include="ng\login.ctrl.js" />
+    <Compile Include="ng\module.js" />
+    <Compile Include="ng\posts.ctrl.js" />
+    <Compile Include="ng\posts.svc.js" />
+    <Compile Include="ng\register.ctrl.js" />
+    <Compile Include="ng\routes.js" />
+    <Compile Include="ng\user.svc.js" />
     <Compile Include="server.js" />
+    <Content Include="MEAN_stack.conf" />
+    <Content Include="templates\login.html" />
+    <Content Include="templates\posts.html" />
+    <Content Include="templates\register.html" />
     <None Include="vagrant_bootstrap.sh" />
+    <Content Include="css\app.less" />
+    <Content Include="layouts\app.html" />
     <Content Include="package.json" />
     <Content Include="README.md" />
     <None Include="Vagrantfile" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="assets\" />
+    <Folder Include="controllers\" />
+    <Folder Include="controllers\api\" />
+    <Folder Include="css\" />
+    <Folder Include="layouts\" />
+    <Folder Include="models\" />
+    <Folder Include="templates\" />
+    <Folder Include="ng\" />
   </ItemGroup>
   <!-- Do not delete the following Import Project.  While this appears to do nothing it is a marker for setting TypeScript properties before our import that depends on them. -->
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="False" />

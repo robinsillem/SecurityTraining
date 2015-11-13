@@ -1,32 +1,63 @@
 # SecurityTraining
 ======
 
-Code and other resources for internal security training
-======
+Course structure
+-----
+
+This is a self-training course on web application (including mobile) security, designed for use at Scott Logic. It's organised around the concept of specific attacks, presenting each attack as a single short module, so you can dip in and out, learning in bite-sized chunks.
+
+The target audience for this course is:
+* Testers
+* Developers
+* Architects 
+* PMs and anyone else involved in web app development
+
+Each attack is descrided in a Markdown file under the Attacks folder. It will consist of a description of the attack, how to run it by hand, links to automated tools, exercises and resources. The key to the training is DO THE EXERCISES. The concepts are not difficult here, it's the necessary attitude that is important in this area. You need to be thinking about people deliberately trying to break your app in very creative ways, and hands-on experience of doing it is a great way of getting into this mindset.
+
+Some exercises invite developers (only) to fix the code. The course will not give coded solutions (hints, suggestions and hand-wavy how-tos for the given tech stack at best), and any fix on the sample code is going to be specific to the technology used on the sample app. So you can either take a local branch and fix on that (see below) or alternatively, build something yourself in the tech of your choice, and fiddle with that.
+
+The vulnerable sample apps will be implementations of a simple (and not at all polished) social media app. The will all have the same UI and functionality, but will use different architecture. They are hosted in VMs (see below), but can be run from your desktop (see the individual samples for URLs). New features will be added to the samples to support new attack modules.
+
+Curently we have one sample app
+* MEAN_stack. An SPA using Mongo / Express / Angular / Node
 
 
-Dev environment setup
+Dev/test environment setup
 -----
 
 The sample vulnerable apps and other utilities run in VMs on your local machine, set up with Vagrant.
-So you'll need to install VirtualBox and Vagrant.
+So you'll need to install VirtualBox (you will need the latest version if you have windows 10) and Vagrant.
 See https://docs.vagrantup.com/v2/getting-started/index.html if you haven't used Vagrant before.
 
-We use a bunch of boxes, set up with:
+The sample apps are node apps running on an ubuntu 14.04 VM. In these VMs the /vagrant directory is mapped to the project folder of the  The samples are run by a gulp task which watches the source files. Editing and saving source will trigger gulp task to build and restart the server, so no IDE build is required. So branching and modifying the code should also 'just work', fingers crossed. N.B. This isn't working yet. :-(
 
-    vagrant box add hashicorp/precise32
+**Important.** When the vagrant file is created it installs (and where necessary builds) node packages on the (ubuntu) VM. If you run npm install on your local Windows machine it will almost certainly break your VM and you will need to recreate it. Attempting to run the samples on both the VM and locally will end in tears of rage and frustration - it's an interesting problem in itself, but has nothing to do with this course.
+
+
+Running samples
+-----
 
 To run any of the samples, you navigate to the project folder. There will be a vagrantfile there, and you can start the VM with:
 
 	vagrant up
 
-and halt it with:
+N.B. This will take quite a while the first time you start a VM, especially the first time
 
-	vagrant halt
+When you're done (temporarily), halt it with:
+
+	vagrant up
 	
-or take it down completely with:
+Next time you start it will be faster to load. Or take it down completely with:
 
 	vagrant destroy
 
-Vagrant maps folders on your machine to folders in the guest VM, so you can edit files in the VM via your IDE.
-You can use whatever IDE works for the sample you're interested in - there will be a variety of tech stacks.	
+(you may also need to remove it with Virtual box manager). 
+And if you need to get medieval*
+
+	vagrant ssh
+
+
+The social media samples start with an empty database. Navigate to Register, and create a new user. Then you can add posts. Currently it is not persisting sessions on the client side, so if you refresh, you'll need to log in again.
+
+
+* http://www.urbandictionary.com/define.php?term=get+medieval Check out the literal <i> tags. We will discuss this under XSS attacks.
