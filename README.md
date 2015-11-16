@@ -18,9 +18,11 @@ Some exercises invite developers (only) to fix the code. The course will not giv
 
 The vulnerable sample apps will be implementations of a simple (and not at all polished) social media app. The will all have the same UI and functionality, but will use different architecture. They are hosted in VMs (see below), but can be run from your desktop (see the individual samples for URLs). New features will be added to the samples to support new attack modules. The samples are *horribly* insecure and you will see many bad practices throughout. Try to concentrate on the specific attack under discussion. ;-) .
 
-Curently we have one sample app
+Currently we have one sample app
 * MEAN_stack. An SPA using Mongo / Express / Angular / Node
 
+Currently we have one attack module (partially developed)
+* Session hijacking via MITM
 
 Dev/test environment setup
 -----
@@ -52,12 +54,10 @@ Next time you start it will be faster to load. Or take it down completely with:
 	vagrant destroy
 
 (you may also need to remove it with Virtual box manager). 
-And if you need to get medieval*
+And if you need to get medieval
 
 	vagrant ssh
 
 
 The social media samples start with an empty database. Navigate to Register, and create a new user. Then you can add posts. Currently it is not persisting sessions on the client side, so if you refresh, you'll need to log in again.
 
-
-* http://www.urbandictionary.com/define.php?term=get+medieval Check out the literal <i> tags. We will discuss this under XSS attacks.
