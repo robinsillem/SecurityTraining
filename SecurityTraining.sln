@@ -3,8 +3,44 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "MEAN_stack", "Samples\MEAN_stack\MEAN_stack.njsproj", "{39094C49-352B-4D55-95CE-4D77F6E416A9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{41354014-FCA5-48BE-A2D7-F6BCD6BE651E}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{CFDC77D0-E0E4-41C5-91BB-62330EE27E6E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Attacks", "Attacks", "{9DC55220-AB03-46B3-9FE1-59851AB24791}"
+	ProjectSection(SolutionItems) = preProject
+		Attacks\Miscellaneous session hijacks.md = Attacks\Miscellaneous session hijacks.md
+		Attacks\Session hijacking via MITM.md = Attacks\Session hijacking via MITM.md
+		Attacks\Session hijacking via XSS.md = Attacks\Session hijacking via XSS.md
+		Attacks\Data\SessionsResponse.txt = Attacks\Data\SessionsResponse.txt
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Data", "Data", "{94A9F105-E54C-4FAA-A5E9-F231806083F4}"
+	ProjectSection(SolutionItems) = preProject
+		Attacks\Data\SessionsResponse.txt = Attacks\Data\SessionsResponse.txt
+	EndProjectSection
+EndProject
 Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{39094C49-352B-4D55-95CE-4D77F6E416A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{39094C49-352B-4D55-95CE-4D77F6E416A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{39094C49-352B-4D55-95CE-4D77F6E416A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{39094C49-352B-4D55-95CE-4D77F6E416A9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{39094C49-352B-4D55-95CE-4D77F6E416A9} = {CFDC77D0-E0E4-41C5-91BB-62330EE27E6E}
+		{94A9F105-E54C-4FAA-A5E9-F231806083F4} = {9DC55220-AB03-46B3-9FE1-59851AB24791}
 	EndGlobalSection
 EndGlobal

@@ -6,3 +6,4 @@ Samples/MEAN_stack/assets/
 *.cache
 Samples/MEAN_stack/node_modules
 Samples/MEAN_stack/.vagrant/
+Samples/MEAN_stack/css/app.css

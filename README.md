@@ -4,7 +4,7 @@
 Course structure
 -----
 
-This is a self-training course on web application (including mobile) security, designed for use at Scott Logic. It's organised around the concept of specific attacks, presenting each attack as a single short module, so you can dip in and out, learning in bite-sized chunks.
+This is a self-training course on web application (including mobile) security, designed for use at Scott Logic. It's organised around the concept of quite specific attacks, presenting each attack as a single short module, so you can dip in and out, learning in bite-sized chunks.
 
 The target audience for this course is:
 * Testers
@@ -16,7 +16,7 @@ Each attack is descrided in a Markdown file under the Attacks folder. It will co
 
 Some exercises invite developers (only) to fix the code. The course will not give coded solutions (hints, suggestions and hand-wavy how-tos for the given tech stack at best), and any fix on the sample code is going to be specific to the technology used on the sample app. So you can either take a local branch and fix on that (see below) or alternatively, build something yourself in the tech of your choice, and fiddle with that.
 
-The vulnerable sample apps will be implementations of a simple (and not at all polished) social media app. The will all have the same UI and functionality, but will use different architecture. They are hosted in VMs (see below), but can be run from your desktop (see the individual samples for URLs). New features will be added to the samples to support new attack modules.
+The vulnerable sample apps will be implementations of a simple (and not at all polished) social media app. The will all have the same UI and functionality, but will use different architecture. They are hosted in VMs (see below), but can be run from your desktop (see the individual samples for URLs). New features will be added to the samples to support new attack modules. The samples are *horribly* insecure and you will see many bad practices throughout. Try to concentrate on the specific attack under discussion. ;-) .
 
 Curently we have one sample app
 * MEAN_stack. An SPA using Mongo / Express / Angular / Node

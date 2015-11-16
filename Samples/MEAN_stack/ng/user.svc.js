@@ -2,28 +2,26 @@
 .service('UserSvc', function ($http) {
     var svc = this;
 
-    svc.getUser = function () {
+    svc.currentUser = null;
+
+    svc.getUser = function (token) {
         return $http.get('/api/users', {
-            headers: { "X-Auth": this.token }
+            headers: { "X-Auth": token }
         });
     }
 
-    svc.login = function (username, password) {
+    svc.getToken = function (email, password) {
         return $http.post('/api/sessions', {
-            username: username,
+            email: email,
             password: password
-        }).then(function (val) {
-            svc.token = val.data;
-            return svc.getUser();
         });
     }
-
-    svc.createUser = function (username, password) {
+    
+    svc.createUser = function (email, name, password) {
         return $http.post('/api/users', {
-            username: username,
+            email: email,
+            name: name,
             password: password
-        }).then(function () {
-            return svc.login(username, password);
         });
     }
 });

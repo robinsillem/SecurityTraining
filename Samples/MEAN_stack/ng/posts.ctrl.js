@@ -1,9 +1,10 @@
 ﻿angular.module('app')
-.controller('PostsCtrl', function ($scope, PostsSvc) {
+.controller('PostsCtrl', function ($scope, PostsSvc, UserSvc) {
+
     $scope.addPost = function () {
         if ($scope.postBody) {
             PostsSvc.create({
-                username: 'Robin',
+                username: UserSvc.currentUser.name,
                 body: $scope.postBody
             }).success(function (post) {
                 $scope.posts.unshift(post);
