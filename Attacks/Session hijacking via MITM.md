@@ -43,14 +43,14 @@ More complex behaviour can be scripted using FiddlerScript - see http://docs.tel
 
 
 *dev-specific*
-Exercise 4: Mitigate by using HTTPS throughout
+Exercise 4: Mitigate by using HTTPS throughout. TBD
 -----
 
 HTTPS throughout - HSTS
 Secure cookies
 
 
-Other mitigations
+Other mitigations. TBD
 -----
 
 Expiry policies
@@ -58,7 +58,7 @@ Reauthentication
 Separating session from auth, changing sessionID after auth
 
 
-Further reading
+Further reading. TBD
 -----
 
 https://www.owasp.org/index.php/Session_Management
