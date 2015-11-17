@@ -25,4 +25,4 @@ cp /vagrant/MEAN_stack.conf /etc/init
 cd /vagrant
 
 # And start the server
-sudo nodejs server.js
+gulp dev
