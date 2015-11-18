@@ -6,13 +6,17 @@ Course structure
 
 This is a self-training course on web application (including mobile) security, designed for use at Scott Logic. It's organised around the concept of quite specific attacks, presenting each attack as a single short module, so you can dip in and out, learning in bite-sized chunks.
 
+The focus of the course is about security concerns when building web applications, which is what we do. It's not about penetration testing in general.
+
+**Important**. In order to defend your apps against attacks you will need to learn how to run those attacks. Just because you can, does not mean you should go straight out and start hacking the world. Never do this stuff on live systems (including our own) or without the owner�s consent, and don�t inadvertently weaken the security of your own machine. 
+
 The target audience for this course is:
 * Testers
 * Developers
 * Architects 
 * PMs and anyone else involved in web app development
 
-Each attack is descrided in a Markdown file under the Attacks folder. It will consist of a description of the attack, how to run it by hand, links to automated tools, exercises and resources. The key to the training is DO THE EXERCISES. The concepts are not difficult here, it's the necessary attitude that is important in this area. You need to be thinking about people deliberately trying to break your app in very creative ways, and hands-on experience of doing it is a great way of getting into this mindset.
+Each attack is described in a Markdown file under the Attacks folder. It will consist of a description of the attack, how to run it by hand, links to automated tools, exercises and resources etc. The key to the training is DO THE EXERCISES. The concepts are not difficult here, it's the necessary attitude that is important in this area. You need to be thinking about people deliberately trying to break your app in very creative ways, and hands-on experience of doing it is a great way of getting into this mindset.
 
 Some exercises invite developers (only) to fix the code. The course will not give coded solutions (hints, suggestions and hand-wavy how-tos for the given tech stack at best), and any fix on the sample code is going to be specific to the technology used on the sample app. So you can either take a local branch and fix on that (see below) or alternatively, build something yourself in the tech of your choice, and fiddle with that.
 
@@ -47,7 +51,7 @@ N.B. This will take quite a while the first time you start a VM, especially the 
 
 When you're done (temporarily), halt it with:
 
-	vagrant up
+	vagrant halt
 	
 Next time you start it will be faster to load. Or take it down completely with:
 

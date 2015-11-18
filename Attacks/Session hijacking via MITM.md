@@ -6,9 +6,13 @@ Level: Simple.
 What is this attack?
 -----
 
-A session hijack is where you have a session - an ongoing HTTP conversation - with a website, and an attacker gains access to this session, communicating with the site as if he were you. This may kick you off, or you may be unaware that he is also using your session. The session may or may not be authenticated, but it is likely that it is if any sensitive information is involved. This means that the attacker can do what ever you can on the site in question at the time of the hijack - change your password, read your mail, transfer money, whatever. For demonstration purposes though, the object of the attack in this module is to post messages from another user's account without his permission. Something offensive that'll get that user into trouble, perhaps.
+A session hijack is where you have a session - an ongoing HTTP conversation - with a website, and an attacker gains access to this session, communicating with the site as if he were you. This might possibly kick you off, or more likely you will be unaware that he is also using your session. The session may or may not be authenticated, but it is likely that it is if any sensitive information is involved. This means that the attacker can do what ever you can on the site in question at the time of the hijack - change your password, read your mail, transfer money, whatever. For demonstration purposes though, the object of the attack in this module is to post messages from another user's account without his permission. Something offensive that'll get that user into trouble, perhaps.
 
 A man in the middle (MITM) attack is where the attacker can intercept the network communications between your browser and the server, and read, block or modify it. There are many places this can be done, from malware on your PC to unsecured or compromised wireless networks to unscrupulous ISPs and governments. These events are outside the control of the web app developer or the user. This is the attack vector for the session hijack in this module. There are many others which we will look at in other modules.
+
+
+Examples of real-world MITM attacks
+-----
 
 
 Exercise 1: Find out how your app works, using Fiddler
@@ -56,6 +60,10 @@ Other mitigations. TBD
 Expiry policies
 Reauthentication
 Separating session from auth, changing sessionID after auth
+
+
+Notes on specific tech. TBD
+-----
 
 
 Further reading. TBD
