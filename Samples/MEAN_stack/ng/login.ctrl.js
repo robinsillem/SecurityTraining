@@ -14,6 +14,8 @@
                 $location.path('/');
             });
         }).error(function (data, status) {
+            $scope.email = null;
+            $scope.password = null;
             $scope.errmsg = 'Failed to authenticate user';
             $log.error('Failed to authenticate user', status, data);
         });
