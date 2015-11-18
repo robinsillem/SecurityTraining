@@ -1,0 +1,16 @@
+﻿extend layout
+block content
+  div.container
+    h1 Recent posts
+    if currentUser
+      form(role="form" method="post")
+        div.form-group
+          div.input-group
+            input.form-control(type="text", name="body")
+            span.input-group-btn
+              button.btn.btn-default(type="submit") Add post
+    ul.list-group
+      - each post in posts
+        li.list-group-item
+          strong= '@' + post.username
+          span= post.body

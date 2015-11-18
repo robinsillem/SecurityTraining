@@ -22,8 +22,9 @@ Some exercises invite developers (only) to fix the code. The course will not giv
 
 The vulnerable sample apps will be implementations of a simple (and not at all polished) social media app. The will all have the same UI and functionality, but will use different architecture. They are hosted in VMs (see below), but can be run from your desktop (see the individual samples for URLs). New features will be added to the samples to support new attack modules. The samples are *horribly* insecure and you will see many bad practices throughout. Try to concentrate on the specific attack under discussion. ;-) .
 
-Currently we have one sample app
-* MEAN_stack. An SPA using Mongo / Express / Angular / Node
+Currently we have two sample apps
+* MEAN_stack. A modern-style SPA using Mongo / Express / Angular / Node
+* Jade_Express_MySQL. A more traditional app with server-generated HTML and a SQL database
 
 Currently we have one attack module (partially developed)
 * Session hijacking via MITM
