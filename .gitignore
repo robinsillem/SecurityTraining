@@ -12,3 +12,5 @@ Samples/Jade_Express_MySQL/assets/
 Samples/Jade_Express_MySQL/css/app.css
 Samples/Jade_Express_MySQL/css/app.css.map
 Samples/Jade_Express_MySQL/logs/
+Samples/Jade_Express_MySQL/node_modules
+Samples/Jade_Express_MySQL/.vagrant/

@@ -2,7 +2,7 @@
 var connection = mysql.createConnection({
     host     : 'localhost',
     user     : 'sec_train_web',
-    password : 'password',
+    password : 'web_pass',
     database : 'sec_training'
 });
 

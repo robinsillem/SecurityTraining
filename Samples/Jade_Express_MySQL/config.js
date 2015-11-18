@@ -1,4 +1,4 @@
 ﻿module.exports = {
-    port: 3020,
+    port: 80,
     secret: 'supersecretkey'
 }
