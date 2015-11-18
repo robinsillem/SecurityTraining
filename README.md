@@ -36,7 +36,7 @@ The sample vulnerable apps and other utilities run in VMs on your local machine,
 So you'll need to install VirtualBox (you will need the latest version if you have windows 10) and Vagrant.
 See https://docs.vagrantup.com/v2/getting-started/index.html if you haven't used Vagrant before.
 
-The sample apps are node apps running on an ubuntu 14.04 VM. In these VMs the /vagrant directory is mapped to the project folder of the  The samples are run by a gulp task which watches the source files. Editing and saving source will trigger gulp task to build and restart the server, so no IDE build is required. So branching and modifying the code should also 'just work', fingers crossed. N.B. This isn't working yet. :-(
+The sample apps are node apps running on an ubuntu 14.04 VM. In these VMs the /vagrant directory is mapped to the project folder of the  The samples are run by a gulp task which watches the source files. Editing and saving source will trigger gulp task to build and restart the server, so no IDE build is required. So branching and modifying the code should also 'just work', fingers crossed.
 
 **Important.** When the vagrant file is created it installs (and where necessary builds) node packages on the (ubuntu) VM. If you run npm install on your local Windows machine it will almost certainly break your VM and you will need to recreate it. Attempting to run the samples on both the VM and locally will end in tears of rage and frustration - it's an interesting problem in itself, but has nothing to do with this course.
 
@@ -47,6 +47,8 @@ Running samples
 To run any of the samples, you navigate to the project folder. There will be a vagrantfile there, and you can start the VM with:
 
 	vagrant up
+
+**You must run this in an administrator command prompt on Windows**, otherwise the VM will not be able to create symlinks.
 
 N.B. This will take quite a while the first time you start a VM, especially the first time
 

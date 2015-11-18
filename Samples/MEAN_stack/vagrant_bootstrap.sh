@@ -1,4 +1,4 @@
-﻿#!sh
+#!/bin/sh
 
 # Required for mongodb install
 apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
@@ -25,4 +25,4 @@ cp /vagrant/MEAN_stack.conf /etc/init
 cd /vagrant
 
 # And start the server
-sudo nodejs server.js
+gulp dev
