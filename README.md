@@ -36,6 +36,9 @@ The sample vulnerable apps and other utilities run in VMs on your local machine,
 So you'll need to install VirtualBox (you will need the latest version if you have windows 10) and Vagrant.
 See https://docs.vagrantup.com/v2/getting-started/index.html if you haven't used Vagrant before.
 
+After installing Vagrant you will need to update the vagrant home as the default is in your user directory and will immediately take you over your allowed profile storage space when it downloads the Ubuntu files.
+This can be done by going to edit environment variables from control panel and adding a new variable VAGRANT_HOME and setting it to the file location you want to use.
+
 The sample apps are node apps running on an ubuntu 14.04 VM. In these VMs the /vagrant directory is mapped to the project folder of the  The samples are run by a gulp task which watches the source files. Editing and saving source will trigger gulp task to build and restart the server, so no IDE build is required. So branching and modifying the code should also 'just work', fingers crossed.
 
 **Important.** When the vagrant file is created it installs (and where necessary builds) node packages on the (ubuntu) VM. If you run npm install on your local Windows machine it will almost certainly break your VM and you will need to recreate it. Attempting to run the samples on both the VM and locally will end in tears of rage and frustration - it's an interesting problem in itself, but has nothing to do with this course.
@@ -67,4 +70,37 @@ And if you need to get medieval
 
 
 The social media samples start with an empty database. Navigate to Register, and create a new user. Then you can add posts. Currently it is not persisting sessions on the client side, so if you refresh, you'll need to log in again.
+
+
+Running samples on a zero client machine
+-----
+
+Since the zero client machines are connecting to a VM you will struggle to start another VM within it. The short term workaround for this is to run the sample locally. This will require the following steps:
+
+* Install MongoDB from https://www.mongodb.org/downloads#production
+* Create a folder for the MongoDB data directory. The default location is c:\data\db but another location can be specified at startup.
+* Install Python from https://www.python.org/downloads/
+* Install Node.js from https://nodejs.org/en/
+* Install Gulp
+
+	npm install -g gulp
+	
+* Change the port in config.js (e.g. to 3000)
+* Navigate to the directory of the sample and run:
+
+	npm install
+	
+* Start MongoDB by navigating to the bin directory where you installed MongoDB and running:
+
+	mongod.exe
+	
+Or if you created the data directory in a different location you need to specify it as an argument:
+	
+	mongod.exe --dbpath "c:\data\db"
+	
+* Start server by running the following in the directory of the sample:
+
+	gulp dev
+	
+* When the server starts up you should be able to connect to localhost on the port specified in the config.js.
 
