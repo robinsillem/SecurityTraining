@@ -66,3 +66,36 @@ And if you need to get medieval
 
 The social media samples start with an empty database. Navigate to Register, and create a new user. Then you can add posts. Currently it is not persisting sessions on the client side, so if you refresh, you'll need to log in again.
 
+
+Running samples on a zero client machine
+-----
+
+Since the zero client machines are connecting to a VM you will struggle to start another VM within it. The short term workaround for this is to run the sample locally. This will require the following steps:
+
+* Install MongoDB from https://www.mongodb.org/downloads#production
+* Create a folder for the MongoDB data directory. The default location is c:\data\db but another location can be specified at startup.
+* Install Python from https://www.python.org/downloads/
+* Install Node.js from https://nodejs.org/en/
+* Install Gulp
+
+	npm install -g gulp
+	
+* Change the port in config.js (e.g. to 3000)
+* Navigate to the directory of the sample and run:
+
+	npm install
+	
+* Start MongoDB by navigating to the bin directory where you installed MongoDB and running:
+
+	mongod.exe
+	
+Or if you created the data directory in a different location you need to specify it as an argument:
+	
+	mongod.exe --dbpath "c:\data\db"
+	
+* Start server by running the following in the directory of the sample:
+
+	gulp dev
+	
+* When the server starts up you should be able to connect to localhost on the port specified in the config.js.
+
