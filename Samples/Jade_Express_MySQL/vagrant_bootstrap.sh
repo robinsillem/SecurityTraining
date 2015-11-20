@@ -3,6 +3,8 @@
 sudo apt-get update
 sudo apt-get install -y nodejs
 sudo apt-get install -y npm
+
+# MySQL install and DB creation
 sudo DEBIAN_FRONTEND=noninteractive apt-get -y install mysql-server
 mysqladmin -u root password sec_training
 mysql -u root -psec_training -e "CREATE database sec_training"
