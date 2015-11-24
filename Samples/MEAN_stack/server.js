@@ -1,4 +1,7 @@
 ﻿var express = require('express');
+var fs = require('fs');
+var http = require('http');
+var https = require('https');
 var bodyParser = require('body-parser');
 var config = require('./config');
 var winston = require('winston');
@@ -30,6 +33,17 @@ app.use(expressWinston.errorLogger({
     ]
 }));
 
-app.listen(config.port, function () {
+var credentials = {
+    key: fs.readFileSync('./mean_stack-key.pem'),
+    cert: fs.readFileSync('./mean_stack-cert.pem')
+};
+
+var httpServer = http.createServer(app);
+httpServer.listen(config.port, function () {
     console.log('Server listening on', config.port);
+});
+
+var httpsServer = https.createServer(credentials, app);
+httpsServer.listen(config.tlsport, function () {
+    console.log('Server listening securely on', config.tlsport);
 });

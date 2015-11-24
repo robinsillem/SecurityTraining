@@ -40,6 +40,8 @@
     <Compile Include="server.js" />
     <Content Include="css\app.less" />
     <None Include="db\create.sql" />
+    <Content Include="jade_express_mysql-cert.pem" />
+    <Content Include="jade_express_mysql-key.pem" />
     <Content Include="package.json" />
     <Content Include="README.md" />
     <Content Include="views\layout.jade" />

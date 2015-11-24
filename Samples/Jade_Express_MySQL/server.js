@@ -1,4 +1,7 @@
 ﻿var express = require('express');
+var fs = require('fs');
+var http = require('http');
+var https = require('https');
 var bodyParser = require('body-parser');
 var config = require('./config');
 var winston = require('winston');
@@ -54,6 +57,17 @@ app.get('/logout', function (req, res) {
     res.redirect('/');
 });
 
-app.listen(config.port, function () {
+var credentials = {
+    key: fs.readFileSync('./jade_express_mysql-key.pem'),
+    cert: fs.readFileSync('./jade_express_mysql-cert.pem')
+};
+
+var httpServer = http.createServer(app);
+httpServer.listen(config.port, function () {
     console.log('Server listening on', config.port);
+});
+
+var httpsServer = https.createServer(credentials, app);
+httpsServer.listen(config.tlsport, function () {
+    console.log('Server listening securely on', config.tlsport);
 });

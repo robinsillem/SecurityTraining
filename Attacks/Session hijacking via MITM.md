@@ -59,20 +59,44 @@ Now put this together to customise Fiddler so it complains if any session ID tok
 *Test-specific* There are some rules I cooked up earlier in the resources folder - these are specific to these sample apps, they'll need modifying for your real-world apps. @Devs, write your own ;-)
 
 
-*dev-specific*
-Exercise 5: Mitigate by using HTTPS throughout. TBD
+Exercise 4: See how the samples behave with HTTPS
 -----
+
+Before starting this exercise, make sure that Fiddler is NOT capturing HTTPS requests, then close it down.
+
+The basic failing we're addressing in this module is that sensitive data is being passed using HTTP. HTTP gives us no confidence that the sensitive data has not been intercepted or tampered with, or indeed that we are actually talking to the right host. Those are the things that HTTPS provides, and happily the sample apps do support HTTPS, in a flawed way, as you'd expect.
+
+Now is the time to make sure you have a firm grasp of what HTTPS is, and how (to a superficial level at least) it works. This should include an understanding of the handshake process, what certificates are, and how they are used and trust established. If you're not already there, start here, and go no further in this module until you've got it ;-)
+
+[https://en.wikipedia.org/wiki/HTTPS](https://)
+
+[https://en.wikipedia.org/wiki/Transport_Layer_Security#Description](https://)
+
+[https://en.wikipedia.org/wiki/Public_key_certificate](https://)
+
+The sample apps use self-signed certificates for the domains 10.10.10.10 and 10.10.10.20 respectively. These are not trusted by your browser, as there is no chain of trust back to a trusted root certification authority (they do have a public key, so they enable the confidentiality/integrity bits of HTTPS). If you request either sample in a modern browser it will complain at you about untrusted connections. So now you should arrange matters so that the certificates provided by the samples are trusted, and at this point I should reiterate that you should have a firm grasp of what certificates and trust are about.
+
+If you trust that you got these certificates from me and you trust me and/or anyone else that has access to this repo then go right ahead and tell Windows/your browser to trust them. If you're more paranoid (you should be) find out how to create your own, keep them private and trust them - keep the .pem file names the same, or you'll have to tweak the server.js code. Look at it this way: the sample apps are already compromised, because the private keys - the *-key.pem files - are published in a github repo :-O.
+
+Here are 2 really bad things the samples do that you should **ensure** that you do not do in a production system:
+
+	1. Use self-signed certificates
+	2. Allow anyone else access to your private keys
+
+So with that dire warning fully understood, tell your system to trust the certificates from both samples. N.B. Chrome and IE use the Windows certificate store, Firefox is different. Work through however many iterations of try/fail/google it takes to get the https versions of both apps up without the browser complaining.
+ 
+Now you can start up Fiddler again. Login and you will see nothing in Fiddler *until you hit the Register page*, because all your traffic is over HTTPS and Fidller isn't capturing that. Unfortunately, owing to  a (deliberate ;-) oversight, the Register page is hard-coded to be HTTP. All of a sudden you're out of the secure world, Fiddler (or the MITM malware, remember) is seeing your traffic, and in the Jade_Express_MySQL sample you'll see Fiddler highlighting the traffic with exposed session cookies. You'll see something similar in the MEAN_stack sample if you're logged in. In any event, you can still browse the samples with HTTP
+
+
+Exercise 5: Secure cookies
+-----
+
+Building secure apps is all about defence in depth - putting in many layers of defence. These layers may overlap and appear redundant because of other defences, but the idea is that if an attacker gets through one layer he hasn't breached the whole thing. So we'll start by applying a simple (and insufficient) fix for the session cookies.
+
 
 HTTPS throughout - HSTS
-Secure cookies
-
-
-Other mitigations. TBD
 -----
-
-Expiry policies
-Reauthentication
-Separating session from auth, changing sessionID after auth
+Secure cookies
 
 
 Notes on specific tech. TBD

@@ -48,6 +48,8 @@
     <Compile Include="ng\routes.js" />
     <Compile Include="ng\user.svc.js" />
     <Compile Include="server.js" />
+    <Content Include="mean_stack-cert.pem" />
+    <Content Include="mean_stack-key.pem" />
     <Content Include="MEAN_stack.conf" />
     <Content Include="templates\login.html" />
     <Content Include="templates\posts.html" />
