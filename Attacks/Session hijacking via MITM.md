@@ -14,6 +14,11 @@ A man in the middle (MITM) attack is where the attacker can intercept the networ
 Examples of real-world MITM attacks
 -----
 
+Your PC is compromised: [http://www.theregister.co.uk/2015/11/23/dude_youre_getting_pwned/](http://)
+
+Your router is compromised: [http://www.theregister.co.uk/2003/11/07/help_my_belkin_router/](http://)
+
+Your ISP is compromised: [http://news.softpedia.com/news/Tunisian-Gov-Is-Primary-Suspect-in-Mass-Theft-of-Gmail-Yahoo-and-Facebook-Logins-176453.shtml](http://)
 
 Exercise 1: Find out how your app works, using Fiddler
 -----
@@ -52,7 +57,7 @@ Exercise 3: Use Fiddler to find unprotected session IDs
 
 We can do some basic filtering using Fiddler's Filters tab - for instance we can set a filter to flag (highlight) HTTP requests which send the X-Auth header.
 
-More complex behaviour can be scripted using FiddlerScript - see http://docs.telerik.com/fiddler/KnowledgeBase/FiddlerScript/ModifyRequestOrResponse. For instance, you could make Fiddler throw up an alert box whenever the word "password" appears in HTTP traffic. This is a useful test in itself - we've been concentrating on hijacking the session ID, but stealing users' passwords by MITM is an even worse attack.
+More complex behaviour can be scripted using FiddlerScript - see [http://docs.telerik.com/fiddler/](http://) KnowledgeBase/FiddlerScript/ModifyRequestOrResponse. For instance, you could make Fiddler throw up an alert box whenever the word "password" appears in HTTP traffic. This is a useful test in itself - we've been concentrating on hijacking the session ID, but stealing users' passwords by MITM is an even worse attack.
 
 Now put this together to customise Fiddler so it complains if any session ID tokens/cookies are sent over HTTP for either of the samples - you should now have a detailed understanding of exactly what you want to catch on each sample app. This will be the basis of our testing for this module - you will just run the apps with Fiddler capturing HTTP requests and flagging the bad ones.
 
@@ -85,7 +90,7 @@ Here are 2 really bad things the samples do that you should **ensure** that you 
 
 So with that dire warning fully understood, tell your system to trust the certificates from both samples. N.B. Chrome and IE use the Windows certificate store, Firefox is different. Work through however many iterations of try/fail/google it takes to get the https versions of both apps up without the browser complaining.
  
-Now you can start up Fiddler again. Login and you will see nothing in Fiddler *until you hit the Register page*, because all your traffic is over HTTPS and Fidller isn't capturing that. Unfortunately, owing to  a (deliberate ;-) oversight, the Register page is hard-coded to be HTTP. All of a sudden you're out of the secure world, Fiddler (or the MITM malware, remember) is seeing your traffic, and in the Jade_Express_MySQL sample you'll see Fiddler highlighting the traffic with exposed session cookies. You'll see something similar in the MEAN_stack sample if you're logged in. In any event, you can still browse the samples with HTTP
+Now you can start up Fiddler again. Login and you will see nothing in Fiddler *until you hit the Register page*, because all your traffic is over HTTPS and Fiddler isn't capturing that. Unfortunately, owing to  a (deliberate ;-) oversight, the Register page is hard-coded to be HTTP. All of a sudden you're out of the secure world, Fiddler (or the MITM malware, remember) is seeing your traffic, and in the Jade_Express_MySQL sample you'll see Fiddler highlighting the traffic with exposed session cookies. You'll see something similar in the MEAN_stack sample if you're logged in. In any event, you can still browse the samples with HTTP
 
 
 Exercise 5: Secure cookies
