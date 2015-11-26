@@ -8,13 +8,15 @@ This is a self-training course on web application (including mobile) security, d
 
 The focus of the course is about security concerns when building web applications, which is what we do. It's not about penetration testing in general.
 
-**Important**. In order to defend your apps against attacks you will need to learn how to run those attacks. Just because you can, does not mean you should go straight out and start hacking the world. Never do this stuff on live systems (including our own) or without the owner�s consent, and don�t inadvertently weaken the security of your own machine. 
+**Important**. In order to defend your apps against attacks you will need to learn how to run those attacks. Just because you can, does not mean you should go straight out and start hacking the world. Never do this stuff on live systems (including our own) or without the owner's consent, and don't inadvertently weaken the security of your own machine. 
 
 The target audience for this course is:
 * Testers
 * Developers
 * Architects 
 * PMs and anyone else involved in web app development
+
+The purpose of the course is to raise everyone's awareness and knowledge of these issues. I believe this is more important than having a few people who know a lot about the subject (and I wouldn't put myself in that category). I absolutely welcome corrections, additions, suggestions and new resources (especially in the form of pull requests to this repo).
 
 Each attack is described in a Markdown file under the Attacks folder. It will consist of a description of the attack, how to run it by hand, links to automated tools, exercises and resources etc. The key to the training is DO THE EXERCISES. The concepts are not difficult here, it's the necessary attitude that is important in this area. You need to be thinking about people deliberately trying to break your app in very creative ways, and hands-on experience of doing it is a great way of getting into this mindset.
 

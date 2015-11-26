@@ -99,7 +99,29 @@ Exercise 5: Secure cookies
 Building secure apps is all about defence in depth - putting in many layers of defence. These layers may overlap and appear redundant because of other defences, but the idea is that if an attacker gets through one layer he hasn't breached the whole thing. So we'll start by applying a simple (and insufficient) fix for the session cookies.
 
 
-HTTPS throughout - HSTS
+A better approach would be to have the server redirect HTTP requests to the HTTPS equivalent. A quick way to do this to the sample apps is to use the express-sslify module (no doubt there are others too). Take a look at the source to see what it is actually doing, then put it in and try again. You'll see that all your HTTPs become HTTPSs, including the 'accidentally' hard coded URL for Register. It will also pretty much disappear from the Fiddler display, unless you have Fiddler capturing HTTPS. 
+
+Note that this quick fix is pretty minimal. We haven't considered anything about exactly what protocols we are using, for instance, and the subject is a lot more complex than the simplistic HTTP vs HTTPS concept. For instance, see [https://www.praetorian.com/blog/man-in-the-middle-tls-ssl-protocol-downgrade-attack](https://). In a real project you may need to consult someone who **really** knows what they are doing.
+
+It's important to realise what the redirect does. If the client sends an HTTP request, then the server sends a 301 response and the client makes the equivalent HTTPS request. So if sensitive data is exposed in the original request it will be visible to an attacker. Try putting the cookie secure attribute back to false, logging in, and then accessing the site over HTTP. Fiddler will complain about the exposed session cookie. So you need both - put it back to secure.
+
+Obviously in this simple case we have done an across-the board redirect of all GETs, (and outright rejection (403) of POSTs), so things are relatively simple. Depending on what you're working on, there may be parts of the app that work over HTTP (though there is movement towards using HTTPS throughout). Be very careful here. The classic example is that of a login page served to an HTTP request. At first sight, there's no sensitive data here (assuming session ID is handled separately from authentication state, which we will discuss in another module). It's just a form and the credentials will be sent with a secure POST. Yes, but the HTML response to the request for the login page is not secured in transit and so is vulnerable to MITM tampering - the attacker can inject script into the login page that sends your keystrokes to his site, thus stealing your password. Be very careful here, and consider having the entire application go over HTTPS unless there's a good reason why not.
+
+
+Exercise 6: Secure tokens
+-----
+
+The MEAN_stack sample app has a different architecture, and much of the above is not applicable - there are no cookies, for a start. We do know exactly which API calls pass the JWTs around, and how, though.
+
+On the face of it, you might consider making those API calls only respond to HTTPS requests, so that the JWTs are always protected in transit. However, you still face the issue of browsers making HTTP requests - the javascript source code is out of your control when it's on a browser. If the JWT is passed in an HTTP request, it's vulnerable regardless of whether the request succeeds, fails or is redirected.
+
+How might this happen, though? If your machine or browser is compromised, you're pretty much stuffed - the token may be exposed without being sent anywhere in your application. If your app has an XSS (cross-site scripting) flaw, the transport protocol is also irrelevant. However, there is another attack vector to consider in the context of this module. In this kind of app your **client-side source code is public** (minification is not a security feature). An attacker can read it without any form of exploit, just by accessing your site. If he can access and tamper with it (including HTML templates, css, everything) on its way from the server to the client, he can make it do absolutely anything he wants, including making HTTP requests to your API, which then are silently redirected to HTTP. So all of this **must be transported securely**.
+
+Make the same changes to the MEAN\_stack app that you did to the Jade\_Express\_MySQL app, adding the express-sslify middleware. Now set up Fiddler to capture and decrypt HTTPS traffic (you may need to restart Fiddler). Log in and add a post. You should see the POST to api/posts returning a 201. Open up the Composer tab in fiddler and drag that request over into it. Change the URL to be http and execute (this is an easy way to simulate compromised client code issuing the HTTP request to the API, don't worry about exactly how Fiddler is getting at that request for now ;-) ). You will see the request gets rejected with a 403 as expected, but Fiddler is complaining that the session token is exposed. Bingo, you've hacked yourself again. This is why you serve your static content securely, though we will discuss other mitigations below.
+ 
+ 
+*Dev-specific* 
+Yes, but what about websockets?
 -----
 Secure cookies
 
