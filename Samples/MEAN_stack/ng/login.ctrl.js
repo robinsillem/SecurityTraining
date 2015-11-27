@@ -1,5 +1,5 @@
 ﻿angular.module('app')
-.controller('LoginCtrl', function ($scope, $location, $log, UserSvc) {
+.controller('LoginCtrl', function ($scope, $location, $log, UserSvc, localStorageService) {
     $scope.errmsg = null;
 
     $scope.login = function(username, password) {
@@ -7,8 +7,8 @@
         .success(function (token) {
             UserSvc.getUser(token)
             .success(function (user) {
-                UserSvc.currentUser = user;
-                UserSvc.currentUser.token = token;
+                user.token = token;
+                localStorageService.set('currentUser', user);
                 $log.info('Logged in user ' + user.email);
                 $scope.$emit('login', user);
                 $location.path('/');

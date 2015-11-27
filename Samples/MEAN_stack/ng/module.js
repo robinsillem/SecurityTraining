@@ -1,5 +1,6 @@
 ﻿var module = angular.module('app', [
-    'ngRoute'
+    'ngRoute',
+    'LocalStorageModule'
 ]);
 
 // For clarity, kill caching

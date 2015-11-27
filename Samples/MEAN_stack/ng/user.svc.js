@@ -2,8 +2,6 @@
 .service('UserSvc', function ($http) {
     var svc = this;
 
-    svc.currentUser = null;
-
     svc.getUser = function (token) {
         return $http.get('/api/users', {
             headers: { "X-Auth": token }

@@ -6,7 +6,7 @@ var less = require('gulp-less');
 var nodemon = require('gulp-nodemon');
 
 gulp.task('js', function () {
-    gulp.src(['ng/module.js', 'ng/**/*.js'])
+    gulp.src(['ng/module.js', 'ng/**/*.js', 'scripts/**/*.js'])
         .pipe(sourcemaps.init())
             .pipe(concat('app.js'))
             .pipe(ngAnnotate())
