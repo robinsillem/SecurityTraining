@@ -1,7 +1,7 @@
 Session hijacking via MITM attack
 =====
 
-Level: Simple.
+Level: Simple at first, sketchy at the end.
 
 What is this attack?
 -----
@@ -142,6 +142,8 @@ See further:
 [https://en.wikipedia.org/wiki/HTTP\\_Strict\\_Transport\\_Security](https://)
 
 [https://www.owasp.org/index.php/HTTP\\_Strict\\_Transport\\_Security](https://)
+
+It's also one of the things Facebook did to deal with the Tunisian debacle.
 
 
 Restricting which certificates the app trusts - HPKP
