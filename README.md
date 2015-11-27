@@ -16,7 +16,7 @@ The target audience for this course is:
 * Architects 
 * PMs and anyone else involved in web app development
 
-The purpose of the course is to raise everyone's awareness and knowledge of these issues. I believe this is more important than having a few people who know a lot about the subject (and I wouldn't put myself in that category). I absolutely welcome corrections, additions, suggestions and new resources (especially in the form of pull requests to this repo).
+The purpose of the course is to raise everyone's awareness and knowledge of these issues. I believe this is more important than having a few people who know a lot about the subject (and I wouldn't put myself in that category). I absolutely welcome corrections, additions, suggestions and new resources (especially in the form of pull requests to this repo). I also recommend that you watch this repo to be notified of new commits.
 
 Each attack is described in a Markdown file under the Attacks folder. It will consist of a description of the attack, how to run it by hand, links to automated tools, exercises and resources etc. The key to the training is DO THE EXERCISES. The concepts are not difficult here, it's the necessary attitude that is important in this area. You need to be thinking about people deliberately trying to break your app in very creative ways, and hands-on experience of doing it is a great way of getting into this mindset.
 
