@@ -14,9 +14,9 @@ A man in the middle (MITM) attack is where the attacker can intercept the networ
 Examples of real-world MITM attacks
 -----
 
-Your PC is compromised: [http://www.theregister.co.uk/2015/11/23/dude\\_youre\\_getting\\_pwned/](http://)
+Your PC is compromised: [http://www.theregister.co.uk/2015/11/23/dude\_youre\_getting\_pwned/](http://)
 
-Your router is compromised: [http://www.theregister.co.uk/2003/11/07/help\\_my\\_belkin\_router/](http://)
+Your router is compromised: [http://www.theregister.co.uk/2003/11/07/help\_my\_belkin\_router/](http://)
 
 Your ISP is compromised: [http://news.softpedia.com/news/Tunisian-Gov-Is-Primary-Suspect-in-Mass-Theft-of-Gmail-Yahoo-and-Facebook-Logins-176453.shtml](http://)
 
@@ -76,9 +76,9 @@ Now is the time to make sure you have a firm grasp of what HTTPS is, and how (to
 
 [https://en.wikipedia.org/wiki/HTTPS](https://)
 
-[https://en.wikipedia.org/wiki/Transport\\_Layer\\_Security#Description](https://)
+[https://en.wikipedia.org/wiki/Transport\_Layer\_Security#Description](https://)
 
-[https://en.wikipedia.org/wiki/Public\\_key\\_certificate](https://)
+[https://en.wikipedia.org/wiki/Public\_key\_certificate](https://)
 
 The sample apps use self-signed certificates for the domains 10.10.10.10 and 10.10.10.20 respectively. These are not trusted by your browser, as there is no chain of trust back to a trusted root certification authority (they do have a public key, so they enable the confidentiality/integrity bits of HTTPS). If you request either sample in a modern browser it will complain at you about untrusted connections. So now you should arrange matters so that the certificates provided by the samples are trusted, and at this point I should reiterate that you should have a firm grasp of what certificates and trust are about.
 
@@ -97,7 +97,7 @@ Now you can start up Fiddler again. Login and you will see nothing in Fiddler *u
 Exercise 5: Secure cookies
 -----
 
-Building secure apps is all about defence in depth - putting in many layers of defence. These layers may overlap and appear redundant because of other defences, but the idea is that if an attacker gets through one layer he hasn't breached the whole thing. So we'll start by applying a simple (and insufficient) fix for the session cookies - this is for the Jade\_Express\_MySql. Find where the cookies are specified, in server.js, and force them to be secure. This means they will only be transported via a secure transport protocol. Now click around on the sample app and watch the traffic with Fiddler. Nothing has changed! That's because the way cookies work is that they are stored by the browser and sent automatically with requests to the domain they are associated with, and the browser still has the old cookie. Go into the browser dev tools, delete the connect.sid cookie for the 10.10.10.20 site and try logging in. It seems to work, but you're clearly not logged in - you don't see your name and you can't add new posts. Basically you've broken it - you were using HTTP and you told it not to transport cookies over HTTP so you haven't got the cookie and the server can't tie your requests to any particular session. Fiddler will still complain about the password appearing in clear, too.
+Building secure apps is all about defence in depth - putting in many layers of defence. These layers may overlap and appear redundant because of other defences, but the idea is that if an attacker gets through one layer he hasn't breached the whole thing. So we'll start by applying a simple (and insufficient) fix for the session cookies - this is for the Jade\_Express\_MySql sample. Find where the cookies are specified, in server.js, and force them to be secure. This means they will only be transported via a secure transport protocol. Now click around on the sample app and watch the traffic with Fiddler. Nothing has changed! That's because the way cookies work is that they are stored by the browser and sent automatically with requests to the domain they are associated with, and the browser still has the old cookie. Go into the browser dev tools, delete the connect.sid cookie for the 10.10.10.20 site and try logging in. It seems to work, but you're clearly not logged in - you don't see your name and you can't add new posts. Basically you've broken it - you were using HTTP and you told it not to transport cookies over HTTP so you haven't got the cookie and the server can't tie your requests to any particular session. Fiddler will still complain about the password appearing in clear, too.
 
 So we need to stop the system from using HTTP. One rather brutal way would be to stop the server listening to HTTP traffic altogether. However, this is going to be a very bad user experience for anyone navigating to the site with an HTTP URL - the connection will fail altogether.
 
@@ -117,7 +117,7 @@ Exercise 6: Secure tokens
 
 On the face of it, you might consider making those API calls only respond to HTTPS requests, so that the JWTs are always protected in transit. However, you still face the issue of browsers making HTTP requests - the javascript source code is out of your control when it's on a browser. If the JWT is passed in an HTTP request, it's vulnerable regardless of whether the request succeeds, fails or is redirected.
 
-How might this happen, though? If your machine or browser is compromised, you're pretty much stuffed - the token may be exposed without being sent anywhere in your application. If your app has an XSS (cross-site scripting) flaw, the transport protocol is also irrelevant. However, there is another attack vector to consider in the context of this module. In this kind of app your **client-side source code is public** (minification is not a security feature). An attacker can read it without any form of exploit, just by accessing your site. If he can access and tamper with it (including HTML templates, css, everything) on its way from the server to the client, he can make it do absolutely anything he wants, including making HTTP requests to your API, which then are silently redirected to HTTP. So all of this **must be transported securely**.
+How might this happen, though? If your machine or browser is compromised, you're pretty much stuffed - the token may be exposed without being sent anywhere in your application. If your app has an XSS (cross-site scripting) flaw, the transport protocol is also irrelevant. However, there is another attack vector to consider in the context of this module. In this kind of app your **client-side source code is public** (minification is not a security feature). An attacker can read it without any form of exploit, just by accessing your site. If he can access and tamper with it (including HTML templates, css, everything) on its way from the server to the client, he can make it do absolutely anything he wants, including making HTTP requests to your API, which then are silently redirected to HTTPS. So all of this **must be transported securely**.
 
 Make the same changes to the MEAN\_stack app that you did to the Jade\_Express\_MySQL app, adding the express-sslify middleware. Now set up Fiddler to capture and decrypt HTTPS traffic (you may need to restart Fiddler). Log in and add a post. You should see the POST to api/posts returning a 201. Open up the Composer tab in fiddler and drag that request over into it. Change the URL to be http and execute (this is an easy way to simulate compromised client code issuing the HTTP request to the API, don't worry about exactly how Fiddler is getting at that request for now ;-) ). You will see the request gets rejected with a 403 as expected, but Fiddler is complaining that the session token is exposed. Bingo, you've hacked yourself again. This is why you serve your assets securely, though we will discuss other mitigations below.
  
@@ -139,9 +139,9 @@ Implement HSTS on the sample apps and have a play around with it. One thing you 
 
 See further:
 
-[https://en.wikipedia.org/wiki/HTTP\\_Strict\\_Transport\\_Security](https://)
+[https://en.wikipedia.org/wiki/HTTP\_Strict\_Transport\_Security](https://)
 
-[https://www.owasp.org/index.php/HTTP\\_Strict\\_Transport\\_Security](https://)
+[https://www.owasp.org/index.php/HTTP\_Strict\_Transport\_Security](https://)
 
 It's also one of the things Facebook did to deal with the Tunisian debacle.
 
@@ -163,9 +163,9 @@ The OWASP guidance below is quite gung-ho about HPKP, but that guidance is under
 
 See further:
 
-[https://en.wikipedia.org/wiki/HTTP\\_Public\\_Key\\_Pinning](https://)
+[https://en.wikipedia.org/wiki/HTTP\_Public\_Key\_Pinning](https://)
 
-[https://www.owasp.org/index.php/Pinning\\_Cheat\\_Sheet](https://)
+[https://www.owasp.org/index.php/Pinning\_Cheat\_Sheet](https://)
 
 
 
@@ -186,3 +186,5 @@ Further reading.
 -----
 
 [https://www.owasp.org/index.php/Session_Management](https://)
+
+Lots of good pluralsight courses by Troy Hunt
