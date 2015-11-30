@@ -68,7 +68,7 @@ Using FiddlerScript - see http://docs.telerik.com/fiddler/KnowledgeBase/FiddlerS
         var type = "[SESSION]";
         var value = System.Text.Encoding.UTF8.GetString(oSession.responseBodyBytes);
         var queryString = System.String.Format("origin={0}&type={1}&value={2}", origin, type, value);
-        Handlers.HTTPGet("http://10.10.10.11/api/logs/add",queryString);
+        Handlers.HTTPGet("http://10.10.10.30/api/logs/add",queryString);
     }
  ```
  4. Add an extra method to allow sending HTTP requests:
