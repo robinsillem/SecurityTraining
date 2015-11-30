@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "MEAN_stack", "Samples\MEAN_stack\MEAN_stack.njsproj", "{39094C49-352B-4D55-95CE-4D77F6E416A9}"
 EndProject
@@ -27,6 +27,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Data", "Data", "{94A9F105-E
 EndProject
 Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "Jade_Express_MySQL", "Samples\Jade_Express_MySQL\Jade_Express_MySQL.njsproj", "{00F40648-ABE1-405D-98AE-5B5B1F87DF8E}"
 EndProject
+Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "Attacker_site", "Samples\Attacker_site\Attacker_site.njsproj", "{D30B6FAC-5656-4309-8DB1-E8ED08CF4387}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +43,10 @@ Global
 		{00F40648-ABE1-405D-98AE-5B5B1F87DF8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{00F40648-ABE1-405D-98AE-5B5B1F87DF8E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{00F40648-ABE1-405D-98AE-5B5B1F87DF8E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D30B6FAC-5656-4309-8DB1-E8ED08CF4387}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D30B6FAC-5656-4309-8DB1-E8ED08CF4387}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D30B6FAC-5656-4309-8DB1-E8ED08CF4387}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D30B6FAC-5656-4309-8DB1-E8ED08CF4387}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -49,5 +55,6 @@ Global
 		{39094C49-352B-4D55-95CE-4D77F6E416A9} = {CFDC77D0-E0E4-41C5-91BB-62330EE27E6E}
 		{94A9F105-E54C-4FAA-A5E9-F231806083F4} = {9DC55220-AB03-46B3-9FE1-59851AB24791}
 		{00F40648-ABE1-405D-98AE-5B5B1F87DF8E} = {CFDC77D0-E0E4-41C5-91BB-62330EE27E6E}
+		{D30B6FAC-5656-4309-8DB1-E8ED08CF4387} = {CFDC77D0-E0E4-41C5-91BB-62330EE27E6E}
 	EndGlobalSection
 EndGlobal

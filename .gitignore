@@ -14,3 +14,10 @@ Samples/Jade_Express_MySQL/css/app.css.map
 Samples/Jade_Express_MySQL/logs/
 Samples/Jade_Express_MySQL/node_modules
 Samples/Jade_Express_MySQL/.vagrant/
+Samples/Attacker_site/node_modules/
+Samples/Attacker_site/assets/
+Samples/Attacker_site/css/app.css
+Samples/Attacker_site/css/app.css.map
+Samples/Attacker_site/logs/
+Samples/Attacker_site/node_modules
+Samples/Attacker_site/.vagrant/
