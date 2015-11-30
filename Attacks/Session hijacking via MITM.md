@@ -14,7 +14,7 @@ A man in the middle (MITM) attack is where the attacker can intercept the networ
 Examples of real-world MITM attacks
 -----
 
-Your PC is compromised: [http://www.theregister.co.uk/2015/11/23/dude\_youre\_getting\_pwned/](http://http://www.theregister.co.uk/2015/11/23/dude\_youre\_getting\_pwned/)
+Your PC is compromised: [http://www.theregister.co.uk/2015/11/23/dude\_youre\_getting\_pwned/](http://www.theregister.co.uk/2015/11/23/dude\_youre\_getting\_pwned/)
 
 Your router is compromised: [http://www.theregister.co.uk/2003/11/07/help\_my\_belkin\_router/](http://www.theregister.co.uk/2003/11/07/help\_my\_belkin\_router/)
 
@@ -185,6 +185,6 @@ Please add anything relevant to your favourite tech stack here
 Further reading.
 -----
 
-[https://www.owasp.org/index.php/Session\_Management](https://www.owasp.org/index.php/Session\_Management)
+[https://www.owasp.org/index.php/Session\_Management\_Cheat\_Sheet](https://www.owasp.org/index.php/Session\_Management\_Cheat\_Sheet)
 
 Lots of good pluralsight courses by Troy Hunt
