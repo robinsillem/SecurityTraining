@@ -5,5 +5,11 @@
         $scope.logs = logs;
     });
 
+    $scope.$on('ws:new_log', function (_, log) {
+        $scope.$apply(function () {
+            $scope.logs.unshift(log);
+        });
+    });
+    
 });
 

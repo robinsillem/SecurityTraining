@@ -6,6 +6,7 @@ var bodyParser = require('body-parser');
 var config = require('./config');
 var winston = require('winston');
 var expressWinston = require('express-winston');
+var ws = require('./websockets');
 
 var app = express();
 app.use(bodyParser.json());
@@ -47,3 +48,6 @@ var httpsServer = https.createServer(credentials, app);
 httpsServer.listen(config.tlsport, function () {
     console.log('Server listening securely on', config.tlsport);
 });
+
+ws.connect(httpServer, config.port);
+ws.connect(httpsServer, config.tlsport);

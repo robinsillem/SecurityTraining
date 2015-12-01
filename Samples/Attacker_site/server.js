@@ -1,8 +1,10 @@
-﻿var express = require('express');
+﻿var http = require('http');
+var express = require('express');
 var bodyParser = require('body-parser');
 var config = require('./config');
 var winston = require('winston');
 var expressWinston = require('express-winston');
+var ws = require('./websockets');
 
 var app = express();
 app.use(bodyParser.json());
@@ -28,6 +30,9 @@ app.use(expressWinston.errorLogger({
     ]
 }));
 
-app.listen(config.port, function () {
+var httpServer = http.createServer(app);
+httpServer.listen(config.port, function () {
     console.log('Server listening on', config.port);
 });
+
+ws.connect(httpServer, config.port);

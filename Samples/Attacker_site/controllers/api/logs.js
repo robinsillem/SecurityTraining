@@ -1,5 +1,6 @@
 ﻿var Log = require('../../models/log');
 var router = require('express').Router();
+var ws = require('../../websockets');
 
 router.get('/', function (req, res, next) {
     Log.find()
@@ -24,6 +25,7 @@ router.get('/add', function (req, res, next) {
             console.log(err);
             return next(err);
         }
+        ws.broadcast('new_log', log);
         return res.status(201).json(log);
     });
 });

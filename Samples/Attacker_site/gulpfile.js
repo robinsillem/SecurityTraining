@@ -32,7 +32,7 @@ gulp.task('dev:server', function() {
     nodemon({
         verbose: true,
         script: 'server.js',
-        watch: ['server.js', 'controllers/**/*.js', 'models/**/*.js']
+        watch: ['server.js', 'websocket.js', 'controllers/**/*.js', 'models/**/*.js']
     });
 });
 
