@@ -18,6 +18,8 @@ Your PC is compromised: [http://www.theregister.co.uk/2015/11/23/dude\_youre\_ge
 
 Your router is compromised: [http://www.theregister.co.uk/2003/11/07/help\_my\_belkin\_router/](http://www.theregister.co.uk/2003/11/07/help\_my\_belkin\_router/)
 
+Your wireless network is compromised: [http://www.theinquirer.net/inquirer/news/2045528/hundreds-log-rogue-wireless-hotspot-infosec-conference](http://www.theinquirer.net/inquirer/news/2045528/hundreds-log-rogue-wireless-hotspot-infosec-conference). And by a delicious irony the same advice from err... Dell - [https://powermore.dell.com/technology/hackers-use-wi-fi-steal-passwords/](https://powermore.dell.com/technology/hackers-use-wi-fi-steal-passwords/)
+
 Your ISP is compromised: [http://news.softpedia.com/news/Tunisian-Gov-Is-Primary-Suspect-in-Mass-Theft-of-Gmail-Yahoo-and-Facebook-Logins-176453.shtml](http://news.softpedia.com/news/Tunisian-Gov-Is-Primary-Suspect-in-Mass-Theft-of-Gmail-Yahoo-and-Facebook-Logins-176453.shtml)
 
 Exercise 1: Find out how your app works, using Fiddler
@@ -25,8 +27,7 @@ Exercise 1: Find out how your app works, using Fiddler
 
 First, a general discussion of what a session is. HTTP is stateless, meaning that each GET/POST/whatever and its response between a client and a server is independent of the next. Clearly this isn't how it looks to the user, what we conceptualize is a session - an ongoing conversation between you and the site. So some extra plumbing is required, and at a high level of abstraction, this involves there being some additional data being passed back and forth saying 'this HTTP request is part of a specific conversation'. There are many architectures for doing this, and the samples in this course form a small subset of those. The session architecture also encompasses concerns about authentication and how the data is persisted between requests on the client and/or server sides, but for now we're going to ignore that and just worry about how that data is passed.
 
-*Dev-specific*
-The first part of the exercise is to look at the architecture/design docs (if there are any - there aren't for these sample apps) and the code, to see how it is supposed to work. Maybe you wrote the code, so you think you know how it works, and you know it basically works, right?
+*Dev-specific* The first part of the exercise is to look at the architecture/design docs (if there are any - there aren't for these sample apps) and the code, to see how it is supposed to work. If you're looking at an actual project rather than these samples, you should presumably have some idea where the session management bit of code lives and how it works - if you haven't worked on that part, now's a good time to familiarise yourself with it. 
 
 The next part of the exercise is to observe the web traffic the app generates, with Fiddler. Start Fiddler and drive the sample app through a cycle of logging on and submitting a post. Look at all the requests and figure out exactly what information is being passed to maintain the session, and how - what part of the request/response is it? 
 

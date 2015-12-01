@@ -1,3 +1,5 @@
+Not yet finished - or even started, really :-(
+
 Exercise 4: Perform a simple penetration test with OWASP ZAP
 -----
 
