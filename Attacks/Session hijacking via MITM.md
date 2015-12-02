@@ -176,7 +176,15 @@ There are a couple of caveats here:
 1. It's not supported by all browsers. See [http://caniuse.com/#search=HSTS](http://caniuse.com/#search=HSTS)
 2. It's a trust on first use thing. You don't get the header until you make your first request. There are ways of preloading this header, but this definitely comes under the heading of 'further reading'
 
-Implement HSTS on the sample apps and have a play around with it. One thing you will observe is that you can no longer get in if Fiddler is capturing HTTPS. This is because Fiddler works by inserting itself as a proxy with its own certificate - DO\_NOT\_TRUST\_FiddlerRoot (there's a clue in the name). Where you could previously click past the browser warnings, once you have HSTS in place you can't - unless you're using IE <= 10 :-( .
+Implement HSTS on the sample apps and have a play around with it. This is easily said, and less easily done, but it will force you through a whole bunch of the practicalities. In principle all you need to do is to get the server to return the Strict-Transport-Security header with some appropriate options, and the browser will thereafter know that the site uses HSTS and not sent HTTP requests. In practice I found I needed to change the domain name from 10.10.10.xx to some other domain name (I used jade_express_mysql.com - I've no idea why I had to do this but it worked). That involved creating a new certificate and fixing the bad /register endpoint with it's hard-coded link. Another tip is if things don't seem to be working as you expect, take a new tab in chrome and try again. 
+
+For this exercise the Chrome dev tools network tap is the weapon of choice - Fiddler gets in the way rather, so close it down. You will also find [chrome://net-internals/#hsts](chrome://net-internals/#hsts) very handy for examining and flattening chrome's knowledge of settings for the domain name. You will know if you have got everything right if:
+	* The app is working with HTTPS, with a trusted certificate
+	* If you go into [chrome://net-internals/#hsts](chrome://net-internals/#hsts) and delete your domain, then fire up the HTTP (not HTTPS) in a new tab, you will see it go to the server for the HTTP version, then redirect you (301) to the HTTPS version (200)
+	* You can then check [chrome://net-internals/#hsts](chrome://net-internals/#hsts) again and query your domain to see the current HSTS set
+	* You can then hit the HTTP URL again and this time and see the redirect is a 307, with no actual server round trip. This illustrates the trust on first use issue - there is one HTTP request, unless your site is on Google's browser preload list
+ 
+Another thing you will observe is that you can no longer get in if Fiddler is capturing HTTPS. This is because Fiddler works by inserting itself as a proxy with its own certificate - DO\_NOT\_TRUST\_FiddlerRoot (there's a clue in the name). Where you could previously click past the browser warnings, once you have HSTS in place you can't - unless you're using IE <= 10 :-( .
 
 See further:
 
