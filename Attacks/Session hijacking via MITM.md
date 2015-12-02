@@ -213,7 +213,17 @@ See further:
 What about websockets?
 -----
 
-Stuff to go in here
+The MEAN\_stack sample app has a feature to push incoming posts out to all clients via websockets (see [https://en.wikipedia.org/wiki/WebSocket](https://en.wikipedia.org/wiki/WebSocket) ). Web socket traffic can be intercepted like any other traffic - it's a little more convoluted and I've had to disable the payload compression for clarity, but you'll find some Fiddler rules to display it in the Resources folder.  
+
+Like HTTP/HTTPS there are insecure and secure variants of the websockets protocol (ws:// and wss://). The sample makes the client pick one of these to match the HTTP/S protocol it's using -  a debatable decision, and you may want to secure this completely too. In fact, there's nothing very sensitive in the payload in this app, but using wss:// will make the traffic disappear from Fiddler's (HTTP-only) display.
+
+Of course, this is one-way server->client traffic in this app. If you are also using client->server websockets traffic you will of course need to secure that too. In this case you may well have more sensitive data, especially as your design may also require you to send a JWT as part of each message payload, as you do for HTTP/S API requests.
+  
+
+What about mobile?
+-----
+
+Coming soon. We're planning to add a mobile sample in a simulator, using the API from the MEAN_stack sample. It will then be possible to proxy it through Fiddler on your desktop and see whether the attacks and mitigations described above work in the same way.
 
 
 Notes on specific tech. 
