@@ -8,7 +8,8 @@ router.get('/', function (req, res) {
         res.render('posts',
         {
             posts: rows,
-            currentUser: req.session.currentUser
+            currentUser: req.session.currentUser,
+            errmsg: errmsg
         });
     });
 });
@@ -17,7 +18,15 @@ router.post('/', function (req, res, next) {
     if (!req.session.currentUser) {
         return next('Not authenticated');
     }
-    connection.query("INSERT INTO posts (username, body, date) VALUES ('" + req.session.currentUser.name + "', '" + req.body.body + "', NOW())");
+    var query = "INSERT INTO posts (username, body, date) VALUES ('" + req.session.currentUser.name + "', '" + req.body.body + "', NOW())";
+    console.log(query);
+    connection.query(query, function (err) {
+        errmsg = null;
+        if (err) {
+            errmsg = err;
+            console.log(err);
+        }
+    });
     res.redirect('/');
 });
 
