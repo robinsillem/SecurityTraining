@@ -1,4 +1,4 @@
-Session hijacking via MITM attack
+Security training #1 - Session hijacking via MITM attack
 =====
 
 Level: Simple at first, sketchy at the end.
@@ -21,6 +21,18 @@ Your router is compromised: [http://www.theregister.co.uk/2003/11/07/help\_my\_b
 Your wireless network is compromised: [http://www.theinquirer.net/inquirer/news/2045528/hundreds-log-rogue-wireless-hotspot-infosec-conference](http://www.theinquirer.net/inquirer/news/2045528/hundreds-log-rogue-wireless-hotspot-infosec-conference). And by a delicious irony the same advice from err... Dell - [https://powermore.dell.com/technology/hackers-use-wi-fi-steal-passwords/](https://powermore.dell.com/technology/hackers-use-wi-fi-steal-passwords/)
 
 Your ISP is compromised: [http://news.softpedia.com/news/Tunisian-Gov-Is-Primary-Suspect-in-Mass-Theft-of-Gmail-Yahoo-and-Facebook-Logins-176453.shtml](http://news.softpedia.com/news/Tunisian-Gov-Is-Primary-Suspect-in-Mass-Theft-of-Gmail-Yahoo-and-Facebook-Logins-176453.shtml)
+
+
+Exercise 0. Moving on from a previous module
+-----
+
+If you're moving on from a different module in this course you may want to clean up your system somewhat:
+
+* Kill the sample app VMs with vagrant destroy.
+* Make sure you're using the right commit for this module. The commit ID is cf1d2ac, tagged Transport_security_presentation.
+* Reset the Fiddler rules - delete the customrules.js file inside your \Documents\Fiddler2\Scripts folder.
+* Recreate the sample apps (and new databases) with vagrant up. 
+* 
 
 Exercise 1: Find out how your app works, using Fiddler
 -----
