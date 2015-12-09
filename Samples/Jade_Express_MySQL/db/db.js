@@ -3,8 +3,8 @@ var connection = mysql.createConnection({
     host     : 'localhost',
     user     : 'sec_train_web',
     password : 'web_pass',
-    database : 'sec_training',
-    multipleStatements: true // Deliberately opening SQLi vulnerability
+//    multipleStatements: true, // Deliberately opening SQLi vulnerability
+    database : 'sec_training'
 });
 
 connection.connect();

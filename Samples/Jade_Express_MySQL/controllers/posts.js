@@ -19,7 +19,6 @@ router.post('/', function (req, res, next) {
         return next('Not authenticated');
     }
     var query = "INSERT INTO posts (username, body, date) VALUES ('" + req.session.currentUser.name + "', '" + req.body.body + "', NOW())";
-    console.log(query);
     connection.query(query, function (err) {
         errmsg = null;
         if (err) {
