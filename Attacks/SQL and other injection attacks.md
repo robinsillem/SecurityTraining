@@ -1,7 +1,7 @@
 Security training #2 - SQL and other injection attacks
 =====
 
-Level: 
+Level: Complex in finding vulnerabilities, simpler in fixing them
 
 What is this attack?
 -----
@@ -55,14 +55,21 @@ In each case, you should start the app, register a user, and log in that user. T
 
 In the Jade\_Express\_mySQL sample go to the other ssh shell and start a mysql command line session (username:root password:sec\_training, use sec\_training;) and run the SELECT command you see in the other ssh shell. You'll see (hopefully) 1 row - the registered user, with the given email and password. If you use the wrong password you'll get no rows back. 
 
-However, if you add AND 1=0 to your correct query, you'll get 0 rows. And if you add AND 1=0 UNION SELECT '', '', '*insert your user name here*>', '' FROM users, you'll get 1 row back, with your user's name in the right column, totally ignoring the email and password in the first part of the query. 
+However, if you add 
 
-This is looking hopeful, but how do we get this query to run via the UI? Looking at the code, the qu
-ry is build up by string concatenation. We see that whatever we typed into the Email field goes inside some quotes in a where clause, as does whatever we typed into the Password field. So it's easy - we insert a whole new ending to the query as the Email input data, including a comment at the end to throw the original part of the query away. It will look something like this:
+AND 1=0 
+
+to your correct query, you'll get 0 rows. And if you add 
+
+AND 1=0 UNION SELECT '', '', '*insert your user name here*>', '' FROM users
+
+you'll get 1 row back, with your user's name in the right column, totally ignoring the email and password in the first part of the query. 
+
+This is looking hopeful, but how do we get this query to run via the UI? Looking at the code, the query is built up by string concatenation. We see that whatever we typed into the Email field goes inside some quotes in a where clause, as does whatever we typed into the Password field. So it's easy - we insert a whole new ending to the query as the Email input data, including a closing quote at the beginning and a comment at the end to throw the original part of the query away. It will look something like this:
 
 ' AND 1=0 UNION SELECT '', '', '*insert your user name here*', '' -- 
 
-And bingo, you're in, using a union-based SQL injection attack. Or not, if you haven't quite got the attack string right :-( - keep trying until you do, you can look at the console log to see what is actually being presented to the database. If you haven't come across the UNION keyword in SQL before, you may be sure that the attacker has (see above) - deep knowledge of the target system is key for an attacker, and UNION isn't very deep.
+And bingo, you're in, using a union-based SQL injection attack. Or not, if you haven't quite got the attack string right :-( - keep trying until you do (*hint*: there should be a space after the --), you can look at the console log to see what is actually being presented to the database. If you haven't come across the UNION keyword in SQL before, you may be sure that the attacker has (see above) - deep knowledge of the target system is key for an attacker, and UNION isn't very deep.
 
 But wait, it gets worse. :-(. Even with this very simple injection we can replace '*insert your user name here*' with a subquery like:
 
@@ -72,7 +79,7 @@ and the app will helpfully display a password in the place you normally see a us
 
 ; drop table users --
 
-Though you'd need to deliberately weaken this app a bit do this (see db.js, and see exercise 6). I'll leave this to you to play with, though.
+Though you'd need to deliberately weaken this app a bit do this (see db.js, and below). I'll leave this to you to play with, though.
 
 Of course this specific attack does rely on the fact that the UI (and the Add Post feature) only cares about user names, but it should be clear that you can put any select you like after the UNION, so long as it has the right number of columns and types. It also relies on you knowing the structure of the code/data and seeing what is going on, but there are tools to help the attacker with that, as we shall see below. 
 
@@ -90,7 +97,7 @@ So what does all this tell us?
 * Directed trial and error gets the attacker a long way
 * It can be laborious
 
-*spoiler alert*: automation...
+*spoiler alert*: This suggests automation...
 
 
 Exercise 2. Review your data/command flows
@@ -100,89 +107,116 @@ Before we get onto automating these attacks, let's take a look at what we're try
 
 In the sample apps, untrusted data comes from the client as posts during registration, login and the Add Post feature. Data from the database might also be regarded as untrusted - you don't necessarily know how it was inserted.
 
-The external system we immediately think of as an injection target is the database, but you might also bear in mind that untrusted data is written to log files and the console. We'll briefly consider logging in exercise 6, but for now well worry about the database.
+The external system we immediately think of as an injection target is the database, but you might also bear in mind that untrusted data is written to log files and the console. We'll briefly consider logging below, but for now we'll only worry about the database.
 
-*dev-specific* Review the whole codebase for both samples (it's short, don't worry, and both apps *should* be the same), looking for places where the application accesses the database. Enumerate all pieces of untrusted input that are used in commands to the database. In each case consider what constitutes 'valid' data for that input (e.g. an email address should be a valid email address, but also consider what constitutes a unique email address and whether they should be canonicalised in some way - casing, maybe?). Enumerate all the API/form entry points for those pieces of untrusted data.
+*dev-specific* Review the whole codebase for both samples (it's short, don't worry - look in the controllers folder, and both apps *should* be the same), looking for places where the application accesses the database. Enumerate all pieces of untrusted input that are used in commands to the database. In each case consider what constitutes 'valid' data for that input (e.g. an email address should be a valid email address, but also consider what constitutes a unique email address and whether they should be canonicalised in some way - casing, maybe?). Enumerate all the API/form entry points for those pieces of untrusted data.
 
-This process will give you a listing of the attack surface of your application, including the fields that are relevant in the context of injection attacks, and some idea of how to sanitize the untrusted data (see exercise. Consider doing the same process for the system you are working on in your day job - it'll take you much longer, of course. 
+This process will give you a listing of the attack surface of your application, including the fields that are relevant in the context of injection attacks, and some idea of how to sanitize the untrusted data (see below). Consider doing the same process for the system you are working on in your day job - it'll take you much longer, of course. 
 
  
 Exercise 3. Automating injection risk discovery
 -----
 
-sql-inject-me [https://addons.mozilla.org/en-GB/firefox/addon/sql-inject-me/](https://addons.mozilla.org/en-GB/firefox/addon/sql-inject-me/) (firefox add-on) rudimentary fuzz testing
+Because injection is so automatable, there are lots of tools you can use to discover and exploit vulnerabilities, and in the exercise we'll try some of them. But before we do, let's have a look at some categories of SQL injection, so  we understand what the tools do, in relation to how information is passed to the attacker (either actual payload, or metadata about the system).
 
-Proxy through ZAProxy [https://www.owasp.org/index.php/OWASP_Zed_Attack_Proxy_Project](https://www.owasp.org/index.php/OWASP_Zed_Attack_Proxy_Project). Spidering. Attack. Clean down.
+We've seen a union-based attack, which replaces or extends an expected query result set with another. The information is extracted via the result set, and as we've seen an attacker can get quite creative with subqueries.
 
-Extract the DB schema with sqlmap [http://sqlmap.org/](http://sqlmap.org/). Command line based, so suitable for automated tests.
+Information can also be extracted via over-informative error messages. Using the Jade\_Express\_MySQL sample, try this in the Email field of the login page:
 
-What can these attacks do - use sqlmap command line as illustration
+' AND foo = '' -- 
 
-The complexity lies in running the attacks rather than the defence.
+This tells us that there is no 'foo' column. It also gives us a nice stack trace which will help us identify the components and versions used in the application. On the other hand,
 
-You really need a good grip of SQL queries and the behaviour of your DB to run these attacks. The specific attacks depend on the syntax used by the specific RDBMS you are using. See [http://troels.arvin.dk/db/rdbms/](http://troels.arvin.dk/db/rdbms/)
+' AND password = '' -- 
 
-Execute OS commands with a UDF  [http://dogox.net/index.php/2015/08/01/udf-privesc/](http://dogox.net/index.php/2015/08/01/udf-privesc/) (easier in MSSQL with xp_cmdshell, if the server allows it - off by default in modern versions, assuming the attacker can't turn it on :-/ ). N.B. You're behind the firewall now!
+does not throw up an exception, from which we may infer that it is valid SQL and there is a 'password' column. This is an error-based attack. 
 
-Find db user rights
+Now of course we all know that exposing raw exception traces to the user is A Bad Thing, so maybe we fix that (see below). But there's another trick. Try this:
 
-Find other DBs on same machine
+' AND 1=0 UNION SELECT '', '', IF( (SELECT COUNT(*) from users) = 1, 'Yes', 'No') as c, '' -- 
 
+Here we've set up a way of asking yes/no questions, in this case "Is there 1 row of user data?". This is blind SQL injection, and even if we can't get yes/no out of it directly we might for instance cause the response to be delayed (using WAITFOR) for a yes, and not for a no. 
+
+So now you know enough to interpret what the first tool I will introduce is telling you (it also illustrates that if there is any way for the attacker to execute SQL, you're pretty much hosed).
+
+**Important - dire warning.** The tools below will insert data and may damage your sample apps (which is one reason they live in VMs and can be rebuilt from scratch) **Do not start pointing them at real systems until you genuinely know what they are going to do, and you have permission to do so**
+
+sql-inject-me [https://addons.mozilla.org/en-GB/firefox/addon/sql-inject-me/](https://addons.mozilla.org/en-GB/firefox/addon/sql-inject-me/) is a firefox add-on that performs simple fuzz testing on a page. Fuzz testing basically means hitting the page with a bunch of canned likely attack strings to see what it does. This tool is not all that sophisticated, but as soon as you see '500 Internal Server Error' or worse 'You have an error in your SQL syntax' you know you're vulnerable. Install it and point it at our favourite victim, that poor login page.
+
+Next up is ZAP [https://www.owasp.org/index.php/OWASP_Zed_Attack_Proxy_Project](https://www.owasp.org/index.php/OWASP_Zed_Attack_Proxy_Project). This is one of OWASP's flagship projects and actually does a lot more than just injection tests - it's an easy to use scanner for all manner of vulnerabilities, and is something you should familiarise yourself with. Rather than me explaining it all myself, look here: [file:///C:/rsillem/Downloads/ZAPGettingStartedGuide-2.4%20(2).pdf](file:///C:/rsillem/Downloads/ZAPGettingStartedGuide-2.4%20(2).pdf). Download ZAP and start digging into the sample apps. 
+
+ZAP will tell you you have an injection vulnerability, but it won't tell you how bad it is. To really get medieval on your system try sqlmap [http://sqlmap.org/](http://sqlmap.org/). This is a truly awesome command line based tool for running fully automated attacks. Download it and run it(you'll need Python on your system too). The full reference is here: [https://github.com/sqlmapproject/sqlmap/wiki/Usage](https://github.com/sqlmapproject/sqlmap/wiki/Usage) and you should explore the functionality a bit, but here's a starter for 10:
+
+python sqlmap.py -u "http://10.10.10.20/login" --data="email=foo&password=bar" -D sec_training --schema --batch
+
+Yup, that just took the database schema out through the login page. You'll see some horrifying stuff in the reference documentation. For instance you can ask it to execute OS commands on the server (i.e. step out of the SQL context altogether). See [http://dogox.net/index.php/2015/08/01/udf-privesc/](http://dogox.net/index.php/2015/08/01/udf-privesc/). This may not work on the sample apps, but it illustrates that if the user permissions on the server and database are not set up right, the attacker could get behind all your firewalls and own all your servers. This is why the potential impact of SQL injection is described as 'severe'.
  
+The great (or not so great) thing about these tools is that they relieve you of the burden of devising horribly cunning and complex attack payloads. If you try it by hand, you will need a really good grip of SQL queries and the behaviour of your DB to run these attacks. The specific attacks depend on the syntax used by the specific RDBMS you are using. See [http://troels.arvin.dk/db/rdbms/](http://troels.arvin.dk/db/rdbms/). 
 
-Exercise 4. Reviewing for vulnerabilities in code
+The tools also have the useful ability to run in batch or headless modes which make them suitable for CI tests. As a general observation, these kind of vulnerabilities are not particularly suited to unit testing, because a. they often depend on a chain of cause and effect through multiple application layers so they're not very isolatable, and b. it's not easy to think of the horribly cunning and complex attack payloads to hit them with yourself.
+
+
+Exercise 4. Mitigate by displaying appropriate error messages
 -----
 
-Understanding attack vectors
+It's a generally good practice from a security (and user experience) point of view to give the user the *right level* of information when his actions don't have the expected result (and when they do, for that matter). Defining what the *right level* actually is can be an interesting question, and there is some tension between usability and security - UX says "Tell them what they need to know" and security says "Don't tell them anything they don't need to know", probably without actually agreeing on the definition of 'need' :-/ . 
 
-common/specific
+For example, the login pages of the sample apps (in the commits tagged for this module, but see also the previous module's code) go down the road of reporting 'Incorrect username or password', rather than 'Incorrect username' and separately 'Incorrect password'. The first is balanced a little more towards security and away from usability, because with the second approach you can trial-and-error user names first, then passwords - it's a design choice.  
 
-casing, termination, comment syntax
+This doesn't bear too much on injection risks, but what does do so is showing the user internal implementation details. In most cases there is **no reason** to show a user a stack trace or an http status code. Yes, I know github shows a cutesy picture saying "404 This is not the web page you are looking for", but their audience is geeks, by and large, and anyway that cutesy animation arrives as part of a 200 response, not an actual 404, fwiw. I'm going to bandy response codes about from here on - see [https://en.wikipedia.org/wiki/List_of_HTTP_status_codes](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes) for their meanings
 
-What part of the SQL query comes from untrusted data?
+Try the error based attack from the last exercise again:
 
-Exception handling
+' AND foo = '' --
 
-Cause errors
+You will see a 500 response with a visible stack trace. This is giving away a ton of information to an attacker, not just about the DB schema, but the identity of all the components in the execution stack, and possibly version numbers as well, as he could partially infer them from the line numbers and source code listings obtained separately.
 
-Expose data - union-based. First select determines columns, subsequent selects must match
+*test-specific* If you see this kind of thing in a production, pre-production or test environment (there are valid reasons for seeing it in dev environments) it's a bug, no question. Log it. You should also have automated tests to ensure that appropriate response codes are returned by requests to the web site. For this exercise use Fiddler - it's out of the box behaviour is to highlight 5xx reponses in red text. 5xx responses are server errors - these are also probably bugs.
 
-Blind injection - boolean / time-based - you just need to make the system behave differently somehow
+*dev_specific* Review the server-side code of both sample apps and fix it so that in the test cases we have tried so far you get a politely helpful but uninformative message - deciding what that message is part of the exercise. Make sure you still write the errors to the error log on the server. Obviously the attacks will still leak information about whether the operation succeeded or not, but we've reduced the attacker's information gain to the minimum and made the attack a little bit harder. We've also improved the overall experience for real users who *accidentally* name their children Robert'); DROP TABLE students; -- . Now try running SQL inject me against the Jade\_Express\_MySQL site. You'll see far less warnings than before - it's not picking up error strings or 500 Internal Server Error any more.
+
+You will of course observe that it's still possible to run the passwordless login attack. We haven't actually stopped anything, just made the attacker's life a bit harder. D'oh.
+
+Beyond this point the exercises take us through various forms of fix and mitigation. This is an example of defense in depth, with multiple independent ways of stopping some of these attacks. You may therefore want to commit your error message fixes locally and try each subsequent exercise on a new local branch off that, so that you're not in a situation where the attack you're looking at was already fixed by the last exercise. 
+
+However, this absolutely does not mean that you only ever need to do one of the things below - the defenses overlap but do not individually stop **all** injection attacks, and you should be thinking in terms of implementing all of them.
 
 
-Exercise 5. Mitigate by displaying appropriate error messages
+Exercise 5. Mitigate by parametrizing queries
 -----
 
-Various fixes best done on separate branches because of defense in depth.
+*dev-specific* The primary defence against SQL injection is to use prepared statements rather than concatenating (trusted) fragments of SQL with (untrusted) fragments of data. Read this [https://en.wikipedia.org/wiki/Prepared_statement](https://en.wikipedia.org/wiki/Prepared_statement) for a clear explanation of prepared statements. The key point from the security point of view is the separation of code and data - the command is parsed, compiled and (partially) optimized without reference to the untrusted data in the parameters, which is bound at a subsequent point. So whatever the data, it's not going to alter the intent of the query - the data is never parsed or compiled.
 
-Fix by displaying appropriate error messages - not exceptions.  
+The details of how to code prepared statements differ from one framework/database to another, and we're about to see a cautionary tale. The Jade\_Express\_MySQL sample app uses the node.js driver for mysql. This library has a feature described here [https://www.npmjs.com/package/mysql#preparing-queries](https://www.npmjs.com/package/mysql#preparing-queries) which looks like it's what we need. Your eyebrows might have twitched slightly at `mysql.format(sql, inserts)` so tweak the sample code to use this construct and see what appears in the server console output.
 
+This is not using MySQL prepared statements, it's escaping the single quotes. This is an entirely different (and weaker) defence - it's better than doing the escaping in code yourself, but it's still external to the database itself, and does the escaping in ignorance of how the database is set up. See [https://www.owasp.org/index.php/SQL_Injection_Prevention_Cheat_Sheet#Defense_Option_3:_Escaping_All_User_Supplied_Input](https://www.owasp.org/index.php/SQL_Injection_Prevention_Cheat_Sheet#Defense_Option_3:_Escaping_All_User_Supplied_Input) and/or google around escaping vs prepared statements for more details. You can continue to tinker with this, but basically the library doesn't support prepared statements. Bummer, but on the other hand it does actually stop the passwordless login attempt. 
 
-Exercise 6. Mitigate by parametrizing queries
------
+Happily though, further googling reveals [https://www.npmjs.com/package/mysql2](https://www.npmjs.com/package/mysql2) which does support prepared statements. Try this - you'll need to npm install it in an ssh shell, or just update the packages.json file then vagrant destroy and vagrant up. This should now cleanly reject the passwordless login attempt. We can now retry the sqlmap test we did earlier to extract the schema, and you should see sqlmap rather grudgingly admit that the email and password fields are not injectable. Sqlmap is a powerful tool, and this simple fix stopped it cold.
 
-Reset to insecure version before Ex 5
+Another approach would be to use stored procedures (see [https://www.owasp.org/index.php/SQL_Injection_Prevention_Cheat_Sheet#Defense_Option_2:_Stored_Procedures](https://www.owasp.org/index.php/SQL_Injection_Prevention_Cheat_Sheet#Defense_Option_2:_Stored_Procedures)). Try this if you like, but we'll discuss it further below in a different context.
 
-Fix by parametrizing queries - never string concatenation. Tech specific, (kind of done for you in mongo, but see above). This is escaping data as it leaves your system on its way to the DB, by leveraging features of the DB and the libraries you drive it with.
-Fix by using stored procedures. As above - parameters are implicit, but make sure you use them, don't concatenate inside the SP, FFS. SPs also allow parameter validation within the SP.
-See also ORMs. Does the ORM you are using enforce the parametrization between its API and the DB? You should expect so, but check - EF does, Django does, etc. However, they may let you do raw SQL, and then it's up to you to Do The Right Thing. Code review. They're also harder to use with SPs.
+None of this applies in the same way to the MEAN\_stack sample because it doesn't use SQL. However, as we've seen it does accept javascript object representing partial expressions. It is possible to tell mongo not to allow arbitrary javascrit functions to run, but that's not really what's happening here. However, there are other defences, which we'll discuss in the next exercise.
 
-Understand the security features your components provide. See [https://docs.mongodb.org/v3.0/administration/security-checklist/](https://docs.mongodb.org/v3.0/administration/security-checklist/). See also keeping components updated, as security vulnerabilities are patched. This implies keeping up to date on what's going on, and having a very slick build/deploy cycle.
+So, what we've done here is to ensure that we pass untrusted data to external systems in such a way that those systems do not treat it as a command. Maybe we escape it, maybe we use the features of the external system. Either way you need to pick some pattern/library/whatever that works for the specific system you are sending data to. And you'll need to confirm that your choice does in fact provide the necessary defence against injection and you'll need to test it. For instance, your solution may use an ORM. Does the ORM you are using enforce the parametrization between its API and the DB? You should expect so, but check - EF does, Django does, etc. However, they may let you do raw SQL, and then it's up to you to Do The Right Thing. Code review, test.
+
+Understand the security features your components (in the specific versions you use) provide. For instance, see [https://docs.mongodb.org/v3.0/administration/security-checklist/](https://docs.mongodb.org/v3.0/administration/security-checklist/). Also keep components updated, as security vulnerabilities may be patched and new defences added. This implies keeping up to date on what's going on, and having a very slick build/deploy cycle.
 
 e.g. Can we inject commands into the logging system? Is there a weakness/feature of the logging component? 
 
 
-Exercise 7. Mitigate by input sanitization
+Exercise 6. Mitigate by input sanitization
 -----
 
 Reset to insecure version before Ex 5
 
+[https://thecodebarbarian.wordpress.com/2014/09/04/defending-against-query-selector-injection-attacks/](https://thecodebarbarian.wordpress.com/2014/09/04/defending-against-query-selector-injection-attacks/)
+
 Fix by input sanitization. Construct the known good patterns for each input field - whitelisting, not blacklisting. How to reject. Regex. Judgement re security vs usability. This is cleaning data as it comes in to your system. There are many many ways of avoiding blacklists - splitting, white space, hex, comments etc. etc.
 
-Hack passwords out of MEAN_stack with Postman [https://chrome.google.com/webstore/detail/postman/fhbjgbiflinjbdggehcddcbncdddomop?hl=en](https://chrome.google.com/webstore/detail/postman/fhbjgbiflinjbdggehcddcbncdddomop?hl=en): {"email": "rsillem", "password": {"$gte": ""}}. Multiple weakness combine here - it wouldn't be possible if the passwords were stored hashed. See also $where (significantly hardened after V2.4). See also $where. Fix by getting rid of qs, or by manually sanitizing what we got from the API - must be a string, not an object.
+One interesting sanitization case is the email addresses, in relation to case sensitivity. Technically (from [http://www.rfc-editor.org/rfc/rfc5321.txt](http://www.rfc-editor.org/rfc/rfc5321.txt) ) "The local-part of a mailbox MUST BE treated as case sensitive. Therefore, SMTP implementations MUST take care to preserve the case of mailbox local-parts. In particular, for some hosts, the user "smith" is different from the user "Smith". However, exploiting the case sensitivity of mailbox local-parts impedes interoperability and is discouraged. Mailbox domains follow normal DNS rules and are hence not case sensitive". However, this is about their intended usage as **email addresses**, and in the sample apps they are being used as **unique user IDs**. So you have a requirements/design decision to make - you may for instance disallow registration of new users whose email address differs from existing ones by case only, or not. But whatever you decide it will impact your input data sanitization.  
 
 
-Exercise 8. Mitigate by least privilege
+Exercise 7. Mitigate by least privilege
 -----
 
 Reset to insecure version before Ex 5
@@ -191,27 +225,16 @@ sudo gulp dev
 
 Fix by least privilege for the DB user - whitelist. Develop with least privilege from the start, to avoid (not) finding a load of bugs when you switch. Permissions, SPs. Specific read/write permissions on tables/columns. Better still apply permissions to SPs. Maybe also use multiple SQL logins for different application user roles.
 
-Other mitigations
+Other risks and mitigations
 -----
+
+eval()
 
 This is single server deployment, but...
 
 See also network segmentation architecture (firewall rules etc.) - maybe not part of the application but you need to understand it and assure yourself of what your app needs and that it has only that. Maybe a service-based architecture will help to isolate web app from data, if you have one -  security is not necessarily a sufficient reason.
 
 Consider *additional (not instead of)* intrusion detection system or web application firewalls (e.g. [http://www.iis.net/downloads/microsoft/urlscan](http://www.iis.net/downloads/microsoft/urlscan) or Barracuda [https://www.barracuda.com/](https://www.barracuda.com/) or even Cloudflare [https://www.cloudflare.com/](https://www.cloudflare.com/). These are (possibly heuristic) blacklisting systems. See also logging - post facto. 
-
-Extensions to existing apps
------
-
-More sensitive data in user table - registration
-
-**Search functionality - text in posts. Using URL query parameter**
-
-My account page, accessible via
-
-Make it not actually crash when you cause an exception by adding a bad post
-
-Give db user god rights
 
 
 Further reading
