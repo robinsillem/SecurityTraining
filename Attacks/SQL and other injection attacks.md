@@ -159,6 +159,8 @@ The great (or not so great) thing about these tools is that they relieve you of 
 
 The tools also have the useful ability to run in batch or headless modes which make them suitable for CI tests. As a general observation, these kind of vulnerabilities are not particularly suited to unit testing, because a. they often depend on a chain of cause and effect through multiple application layers so they're not very isolatable, and b. it's not easy to think of the horribly cunning and complex attack payloads to hit them with yourself.
 
+Depending how creatively you tinkered with sqlmap, you may need to kill and recreate your vm, with vagrant destroy and vagrant up. 
+
 
 Exercise 4. Mitigate by displaying appropriate error messages
 -----
@@ -239,22 +241,77 @@ Test the modifed apps for injection vulnerabilities with the tools described in 
 Exercise 7. Mitigate by least privilege
 -----
 
-Reset to insecure version before Ex 5
+You may wish to reset your local repo to the insecure version before your changes from exercise 5 before proceeding.
 
-sudo gulp dev
+So, assuming that an injection attack has got through all the defences above. How much damage can it do? Well that depends on the permissions given to the user counts running the injected commands. If your vulnerable app is running under a user account with root/admin privileges to every service, database and server in your organisation there's really no limit to what the attacker can do, you're totally hosed. If on the other hand the user account has no rights other than to write to a single database table, then the attacker can only write to that table. Obviously the implementation details are going to be complex than that but the principle is clear:
 
-Fix by least privilege for the DB user - whitelist. Develop with least privilege from the start, to avoid (not) finding a load of bugs when you switch. Permissions, SPs. Specific read/write permissions on tables/columns. Better still apply permissions to SPs. Maybe also use multiple SQL logins for different application user roles.
+Only give your user accounts the permissions they need to perform their role, no more. 
+
+All of this begs some obvious questions about your app that you need to be able to answer:
+
+* What roles does my app require to do its work?
+* What actions is each role required to perform?
+
+For the sample apps we can easily enumerate them at a hand-wavy level:
+
+* An anonymous user can view posts, register and log in
+* A logged in user can view and create posts, register, log in and out
+* The system can serve application assets and write log files
+ 
+For review purposes we can then ask:
+
+* What processes are running, with what user identities?
+* What application-specific (e.g. database user) identities in being used? 
+* What permissions are assigned to each identity?
+
+The answers are very specific to the technologies in use in your system and the requirements of your application. Looking at the OS users and processes we see (after creating the system with vagrant up) that there are processes for gulp and node server.js, both running as root, which gives them way more permissions than they need, but it is a local demo system, and we'll return to this theme in a later module, and concentrate on database access. Taking the Jade\_Express\_MySQL sample app as an example, you really have to know how the MySQL security system works - see [http://dev.mysql.com/doc/refman/5.7/en/security.html](http://dev.mysql.com/doc/refman/5.7/en/security.html) and all its subsections.
+
+Digging into vagrant_bootstrap.sh you will see that we have created 2 databases and a user will all privileges to one of them, and that user is the one used by the web application
+
+    mysql -u root -psec_training -e "CREATE database sec_training"
+    mysql -u root -psec_training -e "CREATE database some_other_database"
+    mysql -u root -psec_training sec_training < /vagrant/db/create.sql
+    mysql -u root -psec_training some_other_database < /vagrant/db/create.sql
+    mysql -u root -psec_training -e "GRANT ALL PRIVILEGES ON sec_training.* To 'sec_train_web'@'localhost' IDENTIFIED BY 'web_pass'"
+
+-----------------------
+
+    var connection = mysql.createConnection({
+	    host : 'localhost',
+	    user : 'sec_train_web',
+	    password : 'web_pass',
+	    multipleStatements: true,
+	    database : 'sec_training'
+    });
+
+Let's see what that means in relation to SQL injection. Run the following sqlmap command (from a Windows command prompt - we're not cheating by sshing into the ubuntu vm):  
+
+python sqlmap.py -u "http://10.10.10.20/login" --data="email=foo&password=bar" --dbs --batch
+
+Sqlmap finds 2 databases, information\_schema and sec_training. It doesn't find some\_other\_database, because it's using the sec\_train\_web identity and that has no permissions on some\_other\_database. The sqlmap command we used in exercise 3 to get the schema actually did so by reading data from information\_schema, but under the hood this database is *actually* a projection showing only the information accessible to the current user, so you couldn't get the schema for some\_other\_database either - try it if you like. So far so good.
+
+However, we foolishly gave the sec\_train\_web user ALL privileges, so let's see if an injection attack can do something it definitely shouldn't be able to - drop the posts table. Now in fact, the following exploit actually depends on another weakness as well as the permissions one. Out of the box the node mysql client won't allow stacked queries - it won't allow SELECT 'foo'; DROP TABLE bar; so the injection attack would fail. But that's a config option in `mysql.createconnection` so you should uncomment `multipleStatements: true` in db.js deliberately to allow the (unnecessarily dramatic) DROP TABLE attack to operate and restart the web server. You wouldn't need that in order to do a massive data exfiltration, and it does illustrate how weaknesses combine, and that you shouldn't take liberties with by-default security features in order to 'make something work', so we'll deliberately weaken the app a bit. Now run
+
+python sqlmap.py -u "http://10.10.10.20/login" --data="email=foo&password=bar" -D sec_training --sql=query="DROP TABLE posts" --batch
+
+Now navigate to the posts page of the app, and you'll see an exception report. Yes, we dropped the posts table, and if you wish you can confirm this with ssh into the vm and a MySQL command line or by re-running
+
+python sqlmap.py -u "http://10.10.10.20/login" --data="email=foo&password=bar" -D sec_training --schema --batch
+
+Fix the permissions weakness by rebuilding the system with the sec_train_web user only being granted SELECT and INSERT permissions on the sec_training database. When you then run the DROP TABLE attack again, sqlmap will tell you that stacked queries are possible but it won't be able to drop the users table. It will, however, fill the posts table will its attack payloads.
+
+This is a simple fix, reducing permissions ona single database user. In real life, you should develop with least privilege from the start, to avoid (not) finding a load of bugs when you reduce permissions. The detail is specific to MySQL's security model in other systems you may be able to apply permissions to specific tables and columns, and so achieve a more fine-grained permission set.
+Another approach to consider is to put all the DB access in stored procedures. In this scenario, the user would not have permission to the general SELECT/INSERT/UPDATE/DELETE operations, just the specific SPs the application uses - though this would work best on DBMS systems where SPs can be individually permissioned. you might also want to use multiple SQL logins for different application user roles.
+
 
 Other risks and mitigations
 -----
 
-eval()
+Beware of constructs such as eval() that take arbitrary input and use it as a command - this is effectively opening an injection vulnerability with your own code as the target.
 
-This is single server deployment, but...
+The sample apps are single server deployment, but in real life this will not happen much. See also network segmentation architecture (firewall rules etc.) - it may not strictly be part of the application but you need to understand it and assure yourself that your app has only what it needs. Maybe a service-based architecture will help to isolate web app from data, if you have one - security is not necessarily a sufficient reason - but you also have to sanitize what you send to the services, like any other external system.
 
-See also network segmentation architecture (firewall rules etc.) - maybe not part of the application but you need to understand it and assure yourself of what your app needs and that it has only that. Maybe a service-based architecture will help to isolate web app from data, if you have one -  security is not necessarily a sufficient reason.
-
-Consider *additional (not instead of)* intrusion detection system or web application firewalls (e.g. [http://www.iis.net/downloads/microsoft/urlscan](http://www.iis.net/downloads/microsoft/urlscan) or Barracuda [https://www.barracuda.com/](https://www.barracuda.com/) or even Cloudflare [https://www.cloudflare.com/](https://www.cloudflare.com/). These are (possibly heuristic) blacklisting systems. See also logging - post facto. 
+Consider *additional* intrusion detection system or web application firewalls (e.g. [http://www.iis.net/downloads/microsoft/urlscan](http://www.iis.net/downloads/microsoft/urlscan) or Barracuda [https://www.barracuda.com/](https://www.barracuda.com/) or even Cloudflare [https://www.cloudflare.com/](https://www.cloudflare.com/). These are (possibly heuristic) blacklisting systems. Even without these, consider what you are logging - does this provide evidence for identifying injection attempts, after the event. 
 
 
 Further reading

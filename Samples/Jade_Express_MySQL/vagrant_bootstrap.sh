@@ -8,7 +8,9 @@ sudo apt-get install -y npm
 sudo DEBIAN_FRONTEND=noninteractive apt-get -y install mysql-server
 mysqladmin -u root password sec_training
 mysql -u root -psec_training -e "CREATE database sec_training"
+mysql -u root -psec_training -e "CREATE database some_other_database"
 mysql -u root -psec_training sec_training < /vagrant/db/create.sql
+mysql -u root -psec_training some_other_database < /vagrant/db/create.sql
 mysql -u root -psec_training -e "GRANT ALL PRIVILEGES ON sec_training.* To 'sec_train_web'@'localhost' IDENTIFIED BY 'web_pass'"
 
 # Hack to get around Windows vs ubuntu permissioning issues on vagrant shared folders - npm install somewhere else and symlink
