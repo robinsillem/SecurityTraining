@@ -6,7 +6,7 @@ var config = require('../../config');
 router.post('/', function (req, res, next) {
     var query = { email: req.body.email, password: req.body.password };
     console.log(query);
-    User.findOne({ email: req.body.email, password: req.body.password })
+    User.findOne(query)
     .select('password').select('email')
     .exec(function(err, user) {
         if (err) {
