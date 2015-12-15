@@ -1,4 +1,4 @@
-Security training #2 - SQL and other injection attacks
+Security training #2 - Injection attacks
 =====
 
 Level: Complex in finding vulnerabilities, simpler in fixing them
@@ -51,7 +51,7 @@ So without further ado, let's walk through an injection attack on the 2 sample a
 
 You will find it easier to see what's going on if you have 2 ssh sessions (vagrant ssh) going for each app - one to run the app (kill the running node process, then sudo gulp dev) and one to run a command line prompt for mysql [http://dev.mysql.com/doc/refman/5.7/en/mysql.html](http://dev.mysql.com/doc/refman/5.7/en/mysql.html) or mongo [https://docs.mongodb.org/manual/reference/mongo-shell/](https://docs.mongodb.org/manual/reference/mongo-shell/) (see also [https://docs.mongodb.org/manual/core/crud-introduction/](https://docs.mongodb.org/manual/core/crud-introduction/)) as appropriate.
 
-In each case, you should start the app and register a user, log in that user, then log out. The sample apps have been modified so that they echo the db query and response to the console, so you can see what is being sent and returned.
+In each case, you should start the app and register a user named 'Robin', log in that user, then log out. The sample apps have been modified so that they echo the db query and response to the console, so you can see what is being sent and returned.
 
 In the Jade\_Express\_mySQL sample go to the other ssh shell and start a mysql command line session (`mysql --user=root --password=sec_training`, then `use sec_training;`) and run the SELECT command you see in the other ssh shell. You'll see (hopefully) 1 row - the registered user, with the given email and password. If you use the wrong password you'll get no rows back.
 
@@ -64,29 +64,29 @@ AND 1=0
 to your correct query, you'll get 0 rows. And if you add 
 
 ```
-AND 1=0 UNION SELECT '', '', '*insert your user name here*', '' FROM users
+AND 1=0 UNION SELECT '1', 'a', 'Robin', 'b' FROM users
 ```
 
-you'll get 1 row back, with your user's name in the right column, totally ignoring the email and password in the first part of the query. N.B. Those are 2 single quotes, not a double quote.
+you'll get 1 row back, with your user's name in the right column, totally ignoring the email and password in the first part of the query.
 
 This is looking hopeful, but how do we get this query to run via the UI? Looking at the code, the query is built up by string concatenation. We see that whatever we typed into the Email field goes inside some quotes in a where clause, as does whatever we typed into the Password field. So it's easy - we insert a whole new ending to the query as the Email input data, including a closing quote at the beginning and a comment at the end to throw the original part of the query away. It will look something like this:
 
 ```
-' AND 1=0 UNION SELECT '', '', '*insert your user name here*', '' -- 
+' AND 1=0 UNION SELECT '1', 'a', 'Robin', 'b' -- 
 ```
 
 And bingo, you're in, using a union-based SQL injection attack. Or not, if you haven't quite got the attack string right :-( - keep trying until you do (*hint*: there should be a space after the --), you can look at the console log to see what is actually being presented to the database. If you haven't come across the UNION keyword in SQL before, you may be sure that the attacker has (see above) - deep knowledge of the target system is key for an attacker, and UNION isn't very deep.
 
-But wait, it gets worse. :-(. Even with this very simple injection we can replace '*insert your user name here*' with a subquery like:
+But wait, it gets worse. :-(. Even with this very simple injection we can replace 'Robin' with a subquery like:
 
 ```
-(select password from users where name = '*insert some name here*') p
+(select password from users where name = 'Robin') p
 ```
 
 and the app will helpfully display a password in the place you normally see a user name. You could also try piggybacking additional SQL command onto the query, like:
 
 ```
-; drop table users --
+; drop table posts --
 ```
 
 Though you'd need to deliberately weaken this app a bit do this (see db.js, and exercise 7 below). I'll leave this to you to play with, though.
@@ -213,7 +213,7 @@ However, this absolutely does not mean that you only ever need to do one of the 
 Exercise 5. Mitigate by sanitizing output
 -----
 
-*dev-specific* The primary defence against *SQL* injection is to use prepared statements rather than concatenating (trusted) fragments of SQL with (untrusted) fragments of data. Read this [https://en.wikipedia.org/wiki/Prepared_statement](https://en.wikipedia.org/wiki/Prepared_statement) for a clear explanation of prepared statements. The key point from the security point of view is the separation of code and data - the command is parsed, compiled and (partially) optimized without reference to the untrusted data in the parameters, which is bound at a subsequent point. So whatever the data, it's not going to alter the intent of the query - the data is never parsed or compiled.
+*dev-specific* The primary defence against *SQL* injection is to use prepared statements rather than concatenating (trusted) fragments of SQL with (untrusted) fragments of data. Read this [https://en.wikipedia.org/wiki/Prepared_statement](https://en.wikipedia.org/wiki/Prepared_statement) for a clear explanation of prepared statements. The key point from the security point of view is the separation of code and data - the command is parsed, compiled and (partially) optimized without reference to the untrusted data in the parameters, which is bound at a subsequent point. So whatever the data, it's not going to alter the intent of the query - the data is never parsed or compiled. See [https://www.owasp.org/index.php/SQL_Injection_Prevention_Cheat_Sheet#Defense_Option_1:_Prepared_Statements_.28with_Parameterized_Queries.29](https://www.owasp.org/index.php/SQL_Injection_Prevention_Cheat_Sheet#Defense_Option_1:_Prepared_Statements_.28with_Parameterized_Queries.29)
 
 The details of how to code prepared statements differ from one framework/database to another, and we're about to see a cautionary tale. The Jade\_Express\_MySQL sample app uses the node.js driver for mysql. This library has a feature described here [https://www.npmjs.com/package/mysql#preparing-queries](https://www.npmjs.com/package/mysql#preparing-queries) which looks like it's what we need. Your eyebrows might have twitched slightly at `mysql.format(sql, inserts)` so tweak the sample code to use this construct and see what appears in the server console output.
 
@@ -253,9 +253,9 @@ In exercise 2 we constructed the known good patterns for each input field, to al
 
 In input sanitization there are design decisions to be made, balancing security and usability. Let's have a look at the 2 fields on the login page. as they are both interesting: 
 
-Email addresses have various issues, one of which is case sensitivity. Technically (from [http://www.rfc-editor.org/rfc/rfc5321.txt](http://www.rfc-editor.org/rfc/rfc5321.txt) ) "*The local-part of a mailbox MUST BE treated as case sensitive. Therefore, SMTP implementations MUST take care to preserve the case of mailbox local-parts. In particular, for some hosts, the user "smith" is different from the user "Smith". However, exploiting the case sensitivity of mailbox local-parts impedes interoperability and is discouraged. Mailbox domains follow normal DNS rules and are hence not case sensitive*". However, this is about their intended usage as **email addresses**, and in the sample apps they are being used as **unique user IDs**. So you have a requirements/design decision to make - you may for instance disallow registration of new users whose email address differs from existing ones by case only, or not. But whatever you decide it will impact your input data sanitization. For this exercise implement an input sanitization rule that accepts email addresses and forces them to be lower case. **Tip** It turns out that writing a regex for all valid email address formats is very hard - see [http://tools.ietf.org/html/rfc2822](http://tools.ietf.org/html/rfc2822). But in these apps, it's up to you what you accept as a valid user ID, and in any case the input sanitization gives you no help in deciding whether a valid email address actually belongs to the person sending it to you. Apply this to the login and registration pages. 
+Email addresses have various issues, one of which is case sensitivity. Technically (from [http://www.rfc-editor.org/rfc/rfc5321.txt](http://www.rfc-editor.org/rfc/rfc5321.txt) ) "*The local-part of a mailbox MUST BE treated as case sensitive. Therefore, SMTP implementations MUST take care to preserve the case of mailbox local-parts. In particular, for some hosts, the user "smith" is different from the user "Smith". However, exploiting the case sensitivity of mailbox local-parts impedes interoperability and is discouraged. Mailbox domains follow normal DNS rules and are hence not case sensitive*". However, this is about their intended usage as **email addresses**, and in the sample apps they are being used as **unique user IDs**. So you have a requirements/design decision to make - you may for instance disallow registration of new users whose email address differs from existing ones by case only, or not. But whatever you decide it will impact your input data sanitization. For this exercise implement an input sanitization rule that accepts email addresses and forces them to be lower case. **Tip** It turns out that writing a regex for all valid email address formats is very hard - see [http://tools.ietf.org/html/rfc2822](http://tools.ietf.org/html/rfc2822). But in these apps, it's up to you what you accept as a valid user ID, and in any case the input sanitization gives you no help in deciding whether a valid email address actually belongs to the person sending it to you. Apply this sanitization to the server-side code for the login and registration pages. You'd want to do this in the client-side code too for usability and/or performance reasons, but that's not a security feature as such. 
 
-Passwords are another interesting case. Password hashes are often cracked by brute force attacks, usually with the aid of pre-computed lists of hash values for very large sets of possible passwords (rainbow tables). The resilience of passwords to this kind of attack depends on their strength, meaning the number of possible valid password strings a cracker has to try. Strength ranges from the obvious variants of 'password' (hundreds of possibilities), to natural language words (tens of thousands) to random (e.g. 'sT8£bG*7z', zillions, dependent on the length and allowed characters). To quantify 'zillions', each character may have as many values as the set of allowed characters (so for ASCII alphanumeric only that's 26 + 26 + 10 = 62). This is raised to the power of the number of characters. Adding in the 20 or so special characters available on the keyboard makes it 82 to that power (about 10 times larger for an 8 character password, 100 for 16). While the numbers illustrate that length is the most important factor in random password strength, non-alphanumeric characters are also desirable. However, you might want to restrict exactly which characters you accept, depending on what external systems you are sending the data to - for instance, password managers often restrict the characters they use in generated passwords, e.g. !$%@#. Hopefully you're going to hash these passwords anyway though, so the plain-text special characters aren't going to leave your app, but for this exercise implement an input sanitization rule that allows upper and lower case ASCII letters, plus digits and the 5 special characters above, with a length between 8 and 16 characters inclusive. This is an arbitrary definition of a valid, though not necessarily strong, password, which should defeat many of the injection attacks (via the password field) described above. Apply this to the login and registration pages. 
+Passwords are another interesting case. Passwords are often made stronger by including non-alphanumeric characters, e.g. !$%@#. Hopefully you're going to hash these passwords anyway, so the plain-text special characters aren't going to leave your app, but for this exercise implement an input sanitization rule that allows upper and lower case ASCII letters, plus digits and the 5 special characters above. This is an arbitrary definition of a valid, though not necessarily strong, password, which should defeat many of the injection attacks (via the password field) described above. Apply this sanitization to the server-side code for login and registration pages. 
 
 The MEAN\_Stack sample could also use the simple input sanitization approach of rejecting input in the form of javascript objects, and only accept strings or numbers (as discussed in exercise 5). Given what body-parser actually does, this is effectively a blacklisting process, but you're probably going to have to reject objects anyway in order to implement the whitelisting above so it's a moot point really.
 
@@ -336,7 +336,7 @@ Another approach to consider is to put all the DB access in stored procedures. I
 Other risks and mitigations
 -----
 
-Beware of constructs such as eval() that take arbitrary input and use it as a command - this is effectively opening an injection vulnerability with your own code as the target.
+Beware of constructs such as eval() (in the context of server-side javascript) that take arbitrary input and use it as a command - this is effectively opening an injection vulnerability with your own code as the target.
 
 The sample apps are single server deployment, but in real life this will not happen much. See also network segmentation architecture (firewall rules etc.) - it may not strictly be part of the application but you need to understand it and assure yourself that your app has only what it needs. Maybe a service-based architecture will help to isolate web app from data, if you have one - security is not necessarily a sufficient reason - but you also have to sanitize what you send to the services, like any other external system.
 
