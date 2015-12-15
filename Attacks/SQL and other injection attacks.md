@@ -53,31 +53,41 @@ You will find it easier to see what's going on if you have 2 ssh sessions (vagra
 
 In each case, you should start the app and register a user, log in that user, then log out. The sample apps have been modified so that they echo the db query and response to the console, so you can see what is being sent and returned.
 
-In the Jade\_Express\_mySQL sample go to the other ssh shell and start a mysql command line session (username:root password:sec\_training, use sec\_training;) and run the SELECT command you see in the other ssh shell. You'll see (hopefully) 1 row - the registered user, with the given email and password. If you use the wrong password you'll get no rows back. 
+In the Jade\_Express\_mySQL sample go to the other ssh shell and start a mysql command line session (`mysql --user=root --password=sec_training`, then `use sec_training;`) and run the SELECT command you see in the other ssh shell. You'll see (hopefully) 1 row - the registered user, with the given email and password. If you use the wrong password you'll get no rows back.
 
 However, if you add 
 
+```
 AND 1=0 
+```
 
 to your correct query, you'll get 0 rows. And if you add 
 
+```
 AND 1=0 UNION SELECT '', '', '*insert your user name here*', '' FROM users
+```
 
 you'll get 1 row back, with your user's name in the right column, totally ignoring the email and password in the first part of the query. N.B. Those are 2 single quotes, not a double quote.
 
 This is looking hopeful, but how do we get this query to run via the UI? Looking at the code, the query is built up by string concatenation. We see that whatever we typed into the Email field goes inside some quotes in a where clause, as does whatever we typed into the Password field. So it's easy - we insert a whole new ending to the query as the Email input data, including a closing quote at the beginning and a comment at the end to throw the original part of the query away. It will look something like this:
 
+```
 ' AND 1=0 UNION SELECT '', '', '*insert your user name here*', '' -- 
+```
 
 And bingo, you're in, using a union-based SQL injection attack. Or not, if you haven't quite got the attack string right :-( - keep trying until you do (*hint*: there should be a space after the --), you can look at the console log to see what is actually being presented to the database. If you haven't come across the UNION keyword in SQL before, you may be sure that the attacker has (see above) - deep knowledge of the target system is key for an attacker, and UNION isn't very deep.
 
 But wait, it gets worse. :-(. Even with this very simple injection we can replace '*insert your user name here*' with a subquery like:
 
+```
 (select password from users where name = '*insert some name here*') p
+```
 
 and the app will helpfully display a password in the place you normally see a user name. You could also try piggybacking additional SQL command onto the query, like:
 
+```
 ; drop table users --
+```
 
 Though you'd need to deliberately weaken this app a bit do this (see db.js, and exercise 7 below). I'll leave this to you to play with, though.
 
@@ -85,13 +95,15 @@ Of course this specific attack does rely on the fact that the UI (and the Add Po
 
 The MEAN\_stack sample is slightly different, because it doesn't use a SQL database. However, a little googling throws up this: [http://blog.websecurify.com/2014/08/hacking-nodejs-and-mongodb.html](http://blog.websecurify.com/2014/08/hacking-nodejs-and-mongodb.html). The TLDR here is that mongo will accept partial expressions using its built-in operators inside javascript objects  So we might try a valid email and paste 
 
+```
 {"$gte": ""} 
+```
 
-into the Password box (i.e. accept any password greater than "", which is to say *any password*. No dice, it fails, so that attack doesn't work, right? Wrong. Start Fiddler and run it again to see what's actually being sent - it turns out that something on the client side (AngularJS maybe, who cares?) has escaped some quotes and quoted the whole input field. But hey, we can get round that. We can submit the request direct to the API using Fiddler or Postman [https://chrome.google.com/webstore/detail/postman/fhbjgbiflinjbdggehcddcbncdddomop?hl=en](https://chrome.google.com/webstore/detail/postman/fhbjgbiflinjbdggehcddcbncdddomop?hl=en), then use Fiddler's autoresponder to drop the JWT in, like when we did the MITM attack. We could leave Fiddler on and write some Fiddlerscript to automagically replace all passwords with {"$gte": ""}, so we can do passwordless login with **any** valid user. The key point here is that anything the client javascript does is **outside your trust boundary** and the attacker can bypass it via your API and/or client-side tools. 
+into the Password box (i.e. accept any password greater than "", which is to say *any password*. No dice, it fails, so that attack doesn't work, right? Wrong. Start Fiddler and run it again to see what's actually being sent - it turns out that something on the client side (AngularJS maybe, who cares?) has escaped some quotes and quoted the whole input field. But hey, we can get round that. We can submit the request direct to the API using Fiddler or Postman [https://chrome.google.com/webstore/detail/postman/fhbjgbiflinjbdggehcddcbncdddomop?hl=en](https://chrome.google.com/webstore/detail/postman/fhbjgbiflinjbdggehcddcbncdddomop?hl=en), then use Fiddler's autoresponder to drop the JWT in, like when we did the MITM attack. We could leave Fiddler on and write some Fiddlerscript to automagically replace all passwords with `{"$gte": ""}`, so we can do passwordless login with **any** valid user. The key point here is that anything the client javascript does is **outside your trust boundary** and the attacker can bypass it via your API and/or client-side tools.
 
 Oh, and if you haven't come across Mongo's operators before, you may be sure that the attacker has (see above) - deep knowledge of the target system is key for an attacker, and Mongo's operators aren't very deep. Does that warning sound familiar?
 
-But wait, it gets worse. :-(. Why stop with {"$gte": ""}, when sequentially trying ..., {"$gte": "P"}, {"$gte": "Q"}, ..., {"$gte": "Pa"}, {"$gte": "Pb"}, ..., {"$gte": "Pas"} etc. (the exact letters will depend on your password) will expose the complete password one letter at a time? Here's an example of a case where multiple weakness combine - it wouldn't be possible if the passwords were stored hashed, or would it?
+But wait, it gets worse. :-(. Why stop with `{"$gte": ""}`, when sequentially trying ..., `{"$gte": "P"}`, `{"$gte": "Q"}`, ..., `{"$gte": "Pa"}`, `{"$gte": "Pb"}`, ..., `{"$gte": "Pas"}` etc. (the exact letters will depend on your password) will expose the complete password one letter at a time? Here's an example of a case where multiple weakness combine - it wouldn't be possible if the passwords were stored hashed, or would it?
 
 So what does all this tell us?
 
@@ -127,17 +139,23 @@ We've seen a union-based attack, which replaces or extends an expected query res
 
 Information can also be extracted via over-informative error messages. Using the Jade\_Express\_MySQL sample, try this in the Email field of the login page:
 
+```
 ' AND foo = '' -- 
+```
 
 This tells us that there is no 'foo' column. It also gives us a nice stack trace which will help us identify the components and versions used in the application. On the other hand,
 
+```
 ' AND password = '' -- 
+```
 
 does not throw up an exception, from which we may infer that it is valid SQL and there is a 'password' column. This is an error-based attack. 
 
 Now of course we all know that exposing raw exception traces to the user is A Bad Thing, so maybe we fix that (see below). But there's another trick. Try this:
 
+```
 ' AND 1=0 UNION SELECT '', '', IF( (SELECT COUNT(*) from users) = 1, 'Yes', 'No') as c, '' -- 
+```
 
 Here we've set up a way of asking yes/no questions, in this case "Is there 1 row of user data?". This is blind SQL injection, and even if we can't get yes/no out of it directly we might for instance cause the response to be delayed (using WAITFOR) for a yes, and not for a no. 
 
@@ -147,11 +165,13 @@ So now you know enough to interpret what the first tool I will introduce is tell
 
 sql-inject-me [https://addons.mozilla.org/en-GB/firefox/addon/sql-inject-me/](https://addons.mozilla.org/en-GB/firefox/addon/sql-inject-me/) is a firefox add-on that performs simple fuzz testing on a page. Fuzz testing basically means hitting the page with a bunch of canned likely attack strings to see what it does. This tool is not all that sophisticated, but as soon as you see '500 Internal Server Error' or worse 'You have an error in your SQL syntax' you know you're vulnerable. Install it and point it at our favourite victim, that poor login page.
 
-Next up is ZAP [https://www.owasp.org/index.php/OWASP_Zed_Attack_Proxy_Project](https://www.owasp.org/index.php/OWASP_Zed_Attack_Proxy_Project). This is one of OWASP's flagship projects and actually does a lot more than just injection tests - it's an easy to use scanner for all manner of vulnerabilities, and is something you should familiarise yourself with. Rather than me explaining it all myself, look here: [file:///C:/rsillem/Downloads/ZAPGettingStartedGuide-2.4%20(2).pdf](file:///C:/rsillem/Downloads/ZAPGettingStartedGuide-2.4%20(2).pdf). Download ZAP and start digging into the sample apps. 
+Next up is ZAP [https://www.owasp.org/index.php/OWASP_Zed_Attack_Proxy_Project](https://www.owasp.org/index.php/OWASP_Zed_Attack_Proxy_Project). This is one of OWASP's flagship projects and actually does a lot more than just injection tests - it's an easy to use scanner for all manner of vulnerabilities, and is something you should familiarise yourself with. Rather than me explaining it all myself, look here: [http://www.mirrorservice.org/sites/downloads.sourceforge.net/z/za/zaproxy/docs/ZAPGettingStartedGuide.pdf](http://www.mirrorservice.org/sites/downloads.sourceforge.net/z/za/zaproxy/docs/ZAPGettingStartedGuide.pdf). Download ZAP and start digging into the sample apps. 
 
 ZAP will tell you you have an injection vulnerability, but it won't tell you how bad it is. To really get medieval on your system try sqlmap [http://sqlmap.org/](http://sqlmap.org/). This is a command line based tool for running fully automated attacks. Download it and run it (you'll need Python on your system too). The full reference is here: [https://github.com/sqlmapproject/sqlmap/wiki/Usage](https://github.com/sqlmapproject/sqlmap/wiki/Usage) and you should explore the functionality a bit, but here's a starter for 10:
 
+```
 python sqlmap.py -u "http://10.10.10.20/login" --data="email=foo&password=bar" -D sec_training --schema --batch
+```
 
 Yup, that just took the database schema out through the login page. You'll see some horrifying stuff in the reference documentation. For instance you can ask it to execute OS commands on the server (i.e. step out of the SQL context altogether). See [http://dogox.net/index.php/2015/08/01/udf-privesc/](http://dogox.net/index.php/2015/08/01/udf-privesc/). This may not work on the sample apps, but it illustrates that if the user permissions on the server and database are not set up right, the attacker could get behind all your firewalls and own all your servers. This is why the potential impact of SQL injection is described as 'severe'.
  
@@ -173,7 +193,9 @@ This doesn't bear too much on injection risks, but what does do so is showing th
 
 Try the error based attack from the last exercise again:
 
+```
 ' AND foo = '' --
+```
 
 You will see a 500 response with a visible stack trace. This is giving away a ton of information to an attacker, not just about the DB schema, but the identity of all the components in the execution stack, and possibly version numbers as well, as he could partially infer them from the line numbers and source code listings obtained separately.
 
@@ -197,7 +219,7 @@ The details of how to code prepared statements differ from one framework/databas
 
 This is not using MySQL prepared statements, it's escaping the single quotes. This is an entirely different (and weaker) defence - it's better than doing the escaping in code yourself, but it's still external to the database itself, and does the escaping in ignorance of how the database is set up. See [https://www.owasp.org/index.php/SQL_Injection_Prevention_Cheat_Sheet#Defense_Option_3:_Escaping_All_User_Supplied_Input](https://www.owasp.org/index.php/SQL_Injection_Prevention_Cheat_Sheet#Defense_Option_3:_Escaping_All_User_Supplied_Input) and/or google around escaping vs prepared statements for more details. You can continue to tinker with this, but basically the library doesn't support prepared statements. Bummer, but on the other hand it does actually stop the passwordless login attempt. 
 
-Happily though, further googling reveals [https://www.npmjs.com/package/mysql2](https://www.npmjs.com/package/mysql2) which does support prepared statements. Try this - you'll need to npm install it in an ssh shell, or just update the packages.json file then vagrant destroy and vagrant up. This should now cleanly reject the passwordless login attempt. We can now retry the sqlmap test we did earlier to extract the schema, and you should see sqlmap rather grudgingly admit that the email and password fields are not injectable. Sqlmap is a powerful tool, and this simple fix stopped it cold.
+Happily though, further googling reveals [https://www.npmjs.com/package/mysql2](https://www.npmjs.com/package/mysql2) which does support prepared statements. Try this - you'll need to npm install it in an ssh shell, or just update the packages.json file then vagrant destroy and vagrant up. This should now cleanly reject the passwordless login attempt. We can now retry the sqlmap test we did earlier to extract the schema (you may need to add the `--flush-session` argument), and you should see sqlmap rather grudgingly admit that the email and password fields are not injectable. Sqlmap is a powerful tool, and this simple fix stopped it cold.
 
 Another approach would be to use stored procedures (see [https://www.owasp.org/index.php/SQL_Injection_Prevention_Cheat_Sheet#Defense_Option_2:_Stored_Procedures](https://www.owasp.org/index.php/SQL_Injection_Prevention_Cheat_Sheet#Defense_Option_2:_Stored_Procedures)). Try this if you like, but we'll discuss it further below in a different context.
 
@@ -208,7 +230,7 @@ None of this applies in the same way to the MEAN\_stack sample because it doesn'
 * Body-parser is parsing JSON into javascript objects, and the characters above have special meanings
 * Mongo will accept javascript objects representing partial expressions - i.e. part of a command, it's changing the intent of the database lookup. 
  
-It is possible to tell mongo not to allow arbitrary javascript functions to run, but that's not really what's happening here. What's happening is that we are providing mongo with data that will cause it to behave in unintended (to us) ways. So for this exercise convert the untrusted email and password data to strings (i.e. the schema we defined for users) if it is not already in that format, before sending it on to mongo - you will also need to do the same conversion for the registration process so that everything works with escaped strings. Then be sure to test with reasonable data as well as things like { $gt: "" } via both the UI and the API directly. Of course, we'll also want to sanitize the input values, and we won't want to be storing plain-text passwords, but those are stories for another exercise/module.
+It is possible to tell mongo not to allow arbitrary javascript functions to run, but that's not really what's happening here. What's happening is that we are providing mongo with data that will cause it to behave in unintended (to us) ways. So for this exercise convert the untrusted email and password data to strings (i.e. the schema we defined for users) if it is not already in that format, before sending it on to mongo - you will also need to do the same conversion for the registration process so that everything works with escaped strings. Then be sure to test with reasonable data as well as things like `{ $gt: "" }` via both the UI and the API directly. Of course, we'll also want to sanitize the input values, and we won't want to be storing plain-text passwords, but those are stories for another exercise/module.
 
 So, what we've done here in both cases is to ensure that we pass untrusted data to external systems in such a way that those systems do not treat it as a command. Maybe we escape it, maybe we use the features of the external system. Either way you need to pick some pattern/library/whatever that works for the specific system you are sending data to. And you'll need to confirm that your choice does in fact provide the necessary defence against injection and you'll need to test it. For instance, your solution may use an ORM. Does the ORM you are using enforce the parametrization between its API and the DB? You should expect so, but check - EF does, Django does, etc. However, they may let you do raw SQL, and then it's up to you to Do The Right Thing. Code review, test.
 
@@ -294,11 +316,15 @@ Sqlmap finds 2 databases, information\_schema and sec_training. It doesn't find 
 
 However, we foolishly gave the sec\_train\_web user ALL privileges, so let's see if an injection attack can do something it definitely shouldn't be able to - drop the posts table. Now in fact, the following exploit actually depends on another weakness as well as the permissions one. Out of the box the node mysql client won't allow stacked (piggy-backed) queries - it won't allow SELECT 'foo'; DROP TABLE bar; so the injection attack would fail. But that's a config option in `mysql.createconnection` so you should uncomment `multipleStatements: true` in db.js deliberately to allow the (unnecessarily dramatic) DROP TABLE attack to operate, and then restart the web server. You wouldn't need that in order to do a massive data exfiltration, but it does illustrate how weaknesses combine, and that you shouldn't take liberties with by-default security features in order to 'make something work', so we'll deliberately weaken the app a bit. Now run
 
-python sqlmap.py -u "http://10.10.10.20/login" --data="email=foo&password=bar" -D sec_training --sql=query="DROP TABLE posts" --batch
+```
+python sqlmap.py -u "http://10.10.10.20/login" --data="email=foo&password=bar" -D sec_training --sql-query="DROP TABLE posts" --batch
+```
 
 Now navigate to the posts page of the app, and you'll see an exception report. Yes, we dropped the posts table, and if you wish you can confirm this with ssh into the vm and a MySQL command line or by re-running
 
+```
 python sqlmap.py -u "http://10.10.10.20/login" --data="email=foo&password=bar" -D sec_training --schema --batch
+```
 
 Fix the permissions weakness by rebuilding the system with the sec\_train\_web user only being granted SELECT and INSERT permissions on the sec\_training database. When you then run the DROP TABLE attack again, sqlmap will tell you that stacked queries are possible but it won't be able to drop the users table. It will, however, fill the posts table will its attack payloads. 
 
