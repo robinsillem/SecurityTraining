@@ -39,7 +39,7 @@ Exercise 0. Moving on from a previous module
 If you're moving on from a different module in this course you may want to clean up your system somewhat:
 
 * Kill the sample app VMs with vagrant destroy.
-* Make sure you're using the right commit for this module - a variety of new features and vulnerabilities have been added to support it. The commit ID is <commit ID here>, tagged SQL\_injection\_presentation.
+* Make sure you're using the right commit for this module - a variety of new features and vulnerabilities have been added to support it. The commit ID is tagged with SQL\_injection\_presentation.
 * Reset the Fiddler rules - delete the customrules.js file inside your \Documents\Fiddler2\Scripts folder.
 * Recreate the sample apps (and new databases) with vagrant up. 
 
@@ -347,6 +347,8 @@ Further reading
 -----
 
 [https://www.owasp.org/index.php/SQL_Injection_Prevention_Cheat_Sheet](https://www.owasp.org/index.php/SQL_Injection_Prevention_Cheat_Sheet)
+
+[https://www.owasp.org/index.php/OWASP_Testing_Guide_v4_Table_of_Contents](https://www.owasp.org/index.php/OWASP_Testing_Guide_v4_Table_of_Contents) Sections 4.8.5 (and all its subsections) - 4.8.12
 
 
 
