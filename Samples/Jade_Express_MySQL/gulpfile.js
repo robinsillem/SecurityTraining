@@ -10,6 +10,15 @@ gulp.task('css', function () {
         .pipe(gulp.dest('assets'));
 });
 
+gulp.task('js', function() {
+    gulp.src('js/**/*.js')
+        .pipe(gulp.dest('assets'));
+});
+
+gulp.task('watch:js', ['js'], function() {
+    gulp.watch('js/**/*.js', ['js']);
+})
+
 gulp.task('watch:css', ['css'], function () {
     gulp.watch('css/**/*.less', ['css']);
 });
@@ -22,4 +31,4 @@ gulp.task('dev:server', function () {
     });
 });
 
-gulp.task('dev', ['watch:css', 'dev:server']);
+gulp.task('dev', ['watch:css', 'watch:js', 'dev:server']);
