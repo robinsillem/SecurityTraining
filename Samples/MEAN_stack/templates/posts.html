@@ -1,4 +1,12 @@
 ﻿<div class="container">
+    <form role="form" ng-submit="search()" class="form-group">
+        <div class="input-group">
+            <input id="search" type="text" placeholder="Search" ng-model="searchString" class="form-control" autofocus />
+            <span class="input-group-btn">
+                <input type="submit" value="Search" class="btn btn-default" />
+            </span>
+        </div>
+    </form>
     <h1>Recent posts</h1>
     <form role="form" ng-show="currentUser">
         <div class="form-group">
@@ -10,8 +18,11 @@
             </div>
         </div>
     </form>
+    <div ng-show="searchString">
+        You searched for: <span ng-bind-html="trustedSearch"></span>
+    </div>
     <ul class="list-group">
-        <li ng-repeat="post in posts | orderBy:'-date'" class="list-group-item">
+        <li ng-repeat="post in posts | filter: searchFilter(post) | orderBy:'-date'" class="list-group-item">
             <strong>@{{ post.username }}</strong>
             <span>{{ post.body }}</span>
         </li>
