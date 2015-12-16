@@ -1,5 +1,8 @@
 ﻿angular.module('app')
-.controller('PostsCtrl', function ($scope, PostsSvc, localStorageService) {
+.controller('PostsCtrl', function ($scope, PostsSvc, localStorageService, $location, $sce) {
+    var hash = decodeURIComponent($location.search().search || "");
+    $scope.searchString = hash;
+    $scope.trustedSearch = $sce.trustAsHtml(hash);
 
     $scope.addPost = function () {
         if ($scope.postBody) {
@@ -22,6 +25,16 @@
     .success(function (posts) {
         $scope.posts = posts;
     });
+
+    $scope.search = function() {
+        $location.search({search: $scope.searchString});
+    };
+
+    $scope.searchFilter = function() {
+        return function(post) {
+            return post.body.toLowerCase().indexOf(hash.toLowerCase()) > -1;
+        };
+    };
 
 });
 
