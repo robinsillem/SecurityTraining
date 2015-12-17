@@ -12,7 +12,7 @@ block content
     ul.list-group
       - each post in posts
         li.list-group-item
-          strong= '@' + post.username
-          span= post.body
+          strong!= '@' + post.username
+          span!= post.body
     if errmsg
       h2.errmsg #{errmsg}
