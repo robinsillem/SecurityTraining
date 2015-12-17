@@ -12,6 +12,9 @@ gulp.task('js', function () {
             .pipe(ngAnnotate())
         .pipe(sourcemaps.write())
         .pipe(gulp.dest('assets'));
+
+    gulp.src('exploits/**/*.js')
+        .pipe(gulp.dest('assets/exploits/'));
 });
 
 gulp.task('css', function() {
@@ -21,7 +24,7 @@ gulp.task('css', function() {
 });
 
 gulp.task('watch:js', ['js'], function() {
-    gulp.watch('ng/**/*.js', ['js']);
+    gulp.watch(['ng/**/*.js', 'exploits/**/*.js'], ['js']);
 });
 
 gulp.task('watch:css', ['css'], function () {

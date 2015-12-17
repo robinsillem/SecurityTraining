@@ -1,12 +1,6 @@
 ﻿extend layout
 block content
   div.container
-    div
-      form(id="search-form")
-        div.input-group
-          input.form-control(type="text", id="search-text", placeholder="Search posts")
-          span.input-group-btn
-            input.btn.btn-default(type="submit", value="Search")
     h1 Recent posts
     if currentUser
       form(role="form" method="post")
@@ -15,12 +9,10 @@ block content
             input.form-control(type="text", name="body")
             span.input-group-btn
               button.btn.btn-default(type="submit") Add post
-    div(id="search-display")
     ul.list-group
       - each post in posts
         li.list-group-item
-          strong= '@' + post.username
-          span= post.body
+          strong!= '@' + post.username
+          span!= post.body
     if errmsg
       h2.errmsg #{errmsg}
-  script(src="/search.js")
