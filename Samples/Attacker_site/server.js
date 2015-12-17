@@ -18,6 +18,11 @@ app.use(expressWinston.logger({
     ]
 }));
 
+app.use(function(req, res, next) {
+    res.header('Access-Control-Allow-Origin', '*');
+    next();
+});
+
 app.use('/api/logs', require('./controllers/api/logs'));
 app.use(require('./controllers/static'));
 
