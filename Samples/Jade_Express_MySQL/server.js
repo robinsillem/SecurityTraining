@@ -31,6 +31,12 @@ app.use(expressWinston.logger({
     ]
 }));
 
+app.use(function(req, res, next) {
+    res.header('X-XSS-Protection', "0");
+    res.header('Content-Security-Policy', "script-src 'unsafe-inline' 10.10.10.30");
+    next();
+});
+
 app.use('/', require('./controllers/posts'));
 app.use('/register', require('./controllers/register'));
 app.use('/login', require('./controllers/login'));

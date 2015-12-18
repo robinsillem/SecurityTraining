@@ -7,6 +7,7 @@ router.get('/', function (req, res) {
     connection.query('SELECT * from posts ORDER BY date DESC', function (err, rows) {
         res.render('posts',
         {
+            search: req.query.search,
             posts: rows,
             currentUser: req.session.currentUser,
             errmsg: errmsg

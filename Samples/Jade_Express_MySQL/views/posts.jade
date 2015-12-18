@@ -9,10 +9,22 @@ block content
             input.form-control(type="text", name="body")
             span.input-group-btn
               button.btn.btn-default(type="submit") Add post
+    form(role="form" method="get" action="/")
+      p= Search
+      div.form-group
+        div.input-group
+          input.form-control(type="text", name="search")
+          span.input-group-btn
+            button.btn.btn-default(type="submit") Search
+    if !search
+      - search = ""
+    else
+      p!= "You searched for: " + decodeURIComponent(search)
     ul.list-group
       - each post in posts
-        li.list-group-item
-          strong!= '@' + post.username
-          span!= post.body
+        - if(post.body.toLowerCase().indexOf(search.toLowerCase()) > -1)
+          li.list-group-item
+            strong!= '@' + post.username
+            span!= post.body
     if errmsg
       h2.errmsg #{errmsg}
