@@ -16,6 +16,7 @@ router.get('/', function (req, res, next) {
 
 router.get('/add', function (req, res, next) {
     var log = new Log({
+        date: new Date().valueOf(),
         origin: req.query.origin,
         value: req.query.value,
         type: req.query.type,
