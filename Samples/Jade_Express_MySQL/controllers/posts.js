@@ -4,9 +4,11 @@ var connection = require('../db/db');
 var errmsg = null;
 
 router.get('/', function (req, res) {
-    connection.query('SELECT * from posts ORDER BY date DESC', function (err, rows) {
+    req.query.search = req.query.search || '';
+    connection.query('SELECT * from posts WHERE body LIKE "%' + req.query.search + '%" ORDER BY date DESC', function (err, rows) {
         res.render('posts',
         {
+            search: req.query.search,
             posts: rows,
             currentUser: req.session.currentUser,
             errmsg: errmsg
