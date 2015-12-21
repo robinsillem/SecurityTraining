@@ -21,10 +21,9 @@ block content
     else
       p!= "You searched for: " + decodeURIComponent(search)
     ul.list-group
-      - each post in posts
-        - if(post.body.toLowerCase().indexOf(search.toLowerCase()) > -1)
-          li.list-group-item
-            strong!= '@' + post.username
-            span!= post.body
+      each post in posts
+        li.list-group-item
+          strong!= '@' + post.username
+          span!= post.body
     if errmsg
       h2.errmsg #{errmsg}

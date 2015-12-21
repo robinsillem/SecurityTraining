@@ -32,8 +32,9 @@ app.use(expressWinston.logger({
 }));
 
 app.use(function(req, res, next) {
+    // Please don't do this. We've just enabled it here to allow XSS.
     res.header('X-XSS-Protection', "0");
-    res.header('Content-Security-Policy', "script-src 'unsafe-inline' 10.10.10.30");
+    res.header('Content-Security-Policy', "script-src 'unsafe-eval' 'unsafe-inline' *");
     next();
 });
 
