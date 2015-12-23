@@ -21,19 +21,13 @@
         });
     });
     
-    PostsSvc.fetch()
+    PostsSvc.fetch(hash)
     .success(function (posts) {
         $scope.posts = posts;
     });
 
     $scope.search = function() {
         $location.search({search: $scope.searchString});
-    };
-
-    $scope.searchFilter = function() {
-        return function(post) {
-            return post.body.toLowerCase().indexOf(hash.toLowerCase()) > -1;
-        };
     };
 
 });

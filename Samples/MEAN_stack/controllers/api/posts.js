@@ -3,7 +3,7 @@ var router = require('express').Router();
 var ws = require('../../websockets');
 
 router.get('/', function (req, res, next) {
-    Post.find()
+    Post.where('body').regex(new RegExp(req.query.search || "", "i"))
     .sort('-date')
     .exec(function (err, posts) {
         if (err) {

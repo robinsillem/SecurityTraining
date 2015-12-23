@@ -1,7 +1,10 @@
 ﻿angular.module('app')
 .service('PostsSvc', function ($http, localStorageService) {
-    this.fetch = function () {
-        return $http.get('/api/posts');
+    this.fetch = function (search) {
+        if (search) {
+            search = "?search=" + search;
+        }
+        return $http.get('/api/posts' + (search ? search : ""));
     }
     
     this.create = function (post) {
