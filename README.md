@@ -22,21 +22,25 @@ Each attack is described in a Markdown file under the Attacks folder. It will co
 
 Some exercises invite developers (only) to fix the code. The course will not give coded solutions (hints, suggestions and hand-wavy how-tos for the given tech stack at best), and any fix on the sample code is going to be specific to the technology used on the sample app. So you can either take a local branch and fix on that (see below) or alternatively, build something yourself in the tech of your choice, and fiddle with that.
 
-The vulnerable sample apps will be implementations of a simple (and not at all polished) social media app. The will all have the same UI and functionality, but will use different architecture. They are hosted in VMs (see below), but can be run from your desktop (see the individual samples for URLs). New features will be added to the samples to support new attack modules. The samples are *horribly* insecure and you will see many bad practices throughout. Try to concentrate on the specific attack under discussion. ;-) .
+The vulnerable sample apps will be implementations of a simple (and not at all polished) social media app. They will all have the same UI and functionality, but will use different architecture. They are hosted in VMs (see below), but can be run from your desktop (see the individual samples for URLs). New features will be added to the samples to support new attack modules. The samples are *horribly* insecure and you will see many bad practices throughout. Try to concentrate on the specific attack under discussion. ;-) .
 
 Currently we have two sample apps
-* MEAN_stack. A modern-style SPA using Mongo / Express / Angular / Node
-* Jade_Express_MySQL. A more traditional app with server-generated HTML and a SQL database
 
-Currently we have one attack module (partially developed)
+* MEAN_stack. A modern-style SPA using Mongo / Express / Angular / Node
+* Jade\_Express\_MySQL. A more traditional app with server-generated HTML and a SQL database
+
+Currently we have three attack modules
+
 * Session hijacking via MITM
+* SQL (and other) injection attacks
+* Cross site scripting
 
 Dev/test environment setup
 -----
 
 The sample vulnerable apps and other utilities run in VMs on your local machine, set up with Vagrant.
 So you'll need to install VirtualBox (you will need the latest version if you have windows 10) and Vagrant.
-See https://docs.vagrantup.com/v2/getting-started/index.html if you haven't used Vagrant before.
+See [https://docs.vagrantup.com/v2/getting-started/index.html](https://docs.vagrantup.com/v2/getting-started/index.html) if you haven't used Vagrant before.
 
 After installing Vagrant you will need to update the vagrant home as the default is in your user directory and will immediately take you over your allowed profile storage space when it downloads the Ubuntu files.
 This can be done by going to edit environment variables from control panel and adding a new variable VAGRANT_HOME and setting it to the file location you want to use.
