@@ -1,4 +1,5 @@
 ﻿var Log = require('../../models/log');
+var Keylog = require('../../models/keylog');
 var router = require('express').Router();
 var ws = require('../../websockets');
 
