@@ -3,7 +3,7 @@
 @border-blue: #A3AAC3;
 
 .errmsg {
-	color: white;
+    color: white;
 
     &:before {
         content: "ERROR:";
@@ -42,9 +42,24 @@ body {
     }
 }
 
-.list-group-item {
+.list-group-item, .well {
     background-color: #676C7D;
     border-color: @border-blue;
+}
+
+.posts {
+    .post {
+        .well {
+            font-style: italic;
+            margin-bottom: 0;
+        }
+
+        &:nth-child(2n) {
+            text-align: right;
+        }
+
+        margin-bottom: 20px;
+    }
 }
 
 @media (min-width: 768px)
