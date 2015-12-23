@@ -19,10 +19,10 @@ block content
       - search = ""
     else
       p!= "You searched for: " + decodeURIComponent(search)
-    ul.list-group
+    div.posts
       each post in posts
-        li.list-group-item
+        div.post
+          div.well!= post.body
           strong!= '@' + post.username
-          span!= post.body
     if errmsg
       h2.errmsg #{errmsg}
