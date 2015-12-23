@@ -17,12 +17,16 @@
 
     $scope.$on('ws:new_post', function(_, post) {
         $scope.$apply(function() {
+            post.trustedBody = $sce.trustAsHtml(post.body);
             $scope.posts.unshift(post);
         });
     });
     
     PostsSvc.fetch(hash)
     .success(function (posts) {
+        posts.forEach(function(post) {
+            post.trustedBody = $sce.trustAsHtml(post.body);
+        });
         $scope.posts = posts;
     });
 
