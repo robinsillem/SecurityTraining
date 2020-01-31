@@ -1,10 +1,10 @@
 ﻿var db = require('../db');
 
-var Log = db.model('Log', {
+var Keylog = db.model('Keylog', {
     date: { type: Number, required: true},
     origin: { type: String, required: true },
     value: { type: String, required: true },
-    type: { type: String, required: true }
+    cookie: { type: String, required: true}
 });
 
-module.exports = Log;
+module.exports = Keylog;

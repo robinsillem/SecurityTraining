@@ -1,5 +1,8 @@
 ﻿angular.module('app')
-.controller('PostsCtrl', function ($scope, PostsSvc, localStorageService) {
+.controller('PostsCtrl', function ($scope, PostsSvc, localStorageService, $location, $sce) {
+    var hash = decodeURIComponent($location.search().search || "");
+    $scope.searchString = hash;
+    $scope.trustedSearch = $sce.trustAsHtml(hash);
 
     $scope.addPost = function () {
         if ($scope.postBody) {
@@ -14,14 +17,22 @@
 
     $scope.$on('ws:new_post', function(_, post) {
         $scope.$apply(function() {
+            post.trustedBody = $sce.trustAsHtml(post.body);
             $scope.posts.unshift(post);
         });
     });
     
-    PostsSvc.fetch()
+    PostsSvc.fetch(hash)
     .success(function (posts) {
+        posts.forEach(function(post) {
+            post.trustedBody = $sce.trustAsHtml(post.body);
+        });
         $scope.posts = posts;
     });
+
+    $scope.search = function() {
+        $location.search({search: $scope.searchString});
+    };
 
 });
 

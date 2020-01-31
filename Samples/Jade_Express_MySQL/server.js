@@ -31,6 +31,13 @@ app.use(expressWinston.logger({
     ]
 }));
 
+app.use(function(req, res, next) {
+    // Please don't do this. We've just enabled it here to allow XSS.
+    res.header('X-XSS-Protection', "0");
+    res.header('Content-Security-Policy', "script-src 'unsafe-eval' 'unsafe-inline' *");
+    next();
+});
+
 app.use('/', require('./controllers/posts'));
 app.use('/register', require('./controllers/register'));
 app.use('/login', require('./controllers/login'));

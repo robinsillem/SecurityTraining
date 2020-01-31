@@ -1,4 +1,5 @@
 ﻿var Log = require('../../models/log');
+var Keylog = require('../../models/keylog');
 var router = require('express').Router();
 var ws = require('../../websockets');
 
@@ -16,6 +17,7 @@ router.get('/', function (req, res, next) {
 
 router.get('/add', function (req, res, next) {
     var log = new Log({
+        date: new Date().valueOf(),
         origin: req.query.origin,
         value: req.query.value,
         type: req.query.type,
