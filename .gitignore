@@ -22,3 +22,6 @@ Samples/Attacker_site/logs/
 Samples/Attacker_site/node_modules
 Samples/Attacker_site/.vagrant/
 Samples/MEAN_stack/.ntvs_analysis.dat.tmp
+
+.idea/
+*.log
